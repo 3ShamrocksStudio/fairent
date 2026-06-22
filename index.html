@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e5f52">
+<title>הוגן · Fairent — האם אתם משלמים יותר מדי על שכר דירה?</title>
+<meta name="description" content="הוגן (Fairent) — כלי עברי-ראשון שנותן לשוכרים בישראל נתונים וכוח מיקוח כדי לשלם שכר דירה הוגן.">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Assistant:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   הוגן · FAIRENT — fair-rent checker for Israel  (Hebrew-first · RTL)
+   Single-file PoC · built on the 3Shamrocks Studio token method.
+   Brand world: deep teal-blue (trust/justice) + fair-green (home) + gold (scales).
+   The fairness engine is a TRANSPARENT heuristic over seed proxy benchmarks.
+   © 2026 3Shamrocks Studio.
+   ============================================================================ */
+
+/* ---------- LAYER 1: Fairent brand knobs ---------- */
+:root{
+  /* hero hue — deep teal-blue (justice / trust) */
+  --brand-50:#e8f3f4; --brand-100:#c8e2e3; --brand-200:#97c7c9; --brand-300:#5fa6a9;
+  --brand-400:#357f86; --brand-500:#1d6470; --brand-600:#16505d; --brand-700:#143f4b;
+  --brand-800:#12313b; --brand-900:#0e2730; --brand-950:#091a21;
+  /* signature — fair green (the home) */
+  --sig-300:#86d3a0; --sig-400:#5bbf7a; --sig-500:#36a25b; --sig-600:#2a8049; --sig-700:#226a3d;
+  /* gold — the scales accent */
+  --gold-400:#e3bb55; --gold-500:#d4a437; --gold-600:#b6892a;
+
+  --brand-grad:linear-gradient(135deg,#16505d 0%,#143f4b 55%,#1d6470 100%);
+
+  /* neutrals (warm-cool, lightly teal-tinted) */
+  --n-0:#ffffff; --n-25:#f7faf9; --n-50:#eef4f3; --n-100:#e3ecec; --n-200:#d2dedd;
+  --n-300:#b3c3c3;
+  --n-400:#7d949a; --n-500:#5b727a; --n-600:#445860; --n-700:#33444b; --n-800:#243137; --n-900:#172227; --n-950:#0d1518;
+
+  /* semantic — light */
+  --bg:var(--n-25); --bg-2:var(--n-50);
+  --surface:var(--n-0); --sunken:var(--n-50);
+  --ink:var(--n-900); --ink-2:var(--n-600); --ink-3:var(--n-500);
+  --line:var(--n-200); --line-2:var(--n-300);
+  --field:var(--n-0); --field-line:var(--n-300);
+  --accent:var(--brand-600); --accent-hover:var(--brand-700); --accent-soft:var(--brand-50); --accent-ink:var(--brand-700);
+  --on-accent:#ffffff;
+
+  --fair:#1f8f54; --fair-bg:#e3f5e9; --fair-ink:#176b3f;
+  --ok:#2a8049; --ok-bg:#e6f5ec;
+  --warn:#b07706; --warn-bg:#fbf0d6; --warn-ink:#8a5e05;
+  --high:#c4521f; --high-bg:#fbe7dc; --high-ink:#9d3f15;
+  --alert:#cc2f3a; --alert-bg:#fbe1e3; --alert-ink:#a51f29;
+  --info:#1d6470; --info-bg:#e2f0f1;
+
+  --radius:16px; --radius-sm:11px; --radius-lg:24px;
+  --shadow-sm:0 1px 2px rgba(9,26,33,.06),0 1px 3px rgba(9,26,33,.08);
+  --shadow:0 8px 24px rgba(9,26,33,.10),0 2px 6px rgba(9,26,33,.06);
+  --shadow-lg:0 22px 50px rgba(9,26,33,.16),0 6px 14px rgba(9,26,33,.08);
+  --ring:0 0 0 3px color-mix(in srgb,var(--brand-500) 40%,transparent);
+  --maxw:760px;
+}
+[data-mode="dark"]{
+  --bg:var(--brand-950); --bg-2:var(--brand-900);
+  --surface:#102a32; --sunken:#0c222a;
+  --ink:#eaf4f3; --ink-2:#b7cccc; --ink-3:#8fa9a9;
+  --line:color-mix(in srgb,#5fa6a9 16%,transparent); --line-2:color-mix(in srgb,#5fa6a9 26%,transparent);
+  --field:#0c222a; --field-line:color-mix(in srgb,#5fa6a9 24%,transparent);
+  --accent:var(--brand-300); --accent-hover:var(--sig-300); --accent-soft:color-mix(in srgb,var(--brand-400) 22%,transparent); --accent-ink:var(--brand-200);
+  --on-accent:#06181d;
+
+  --fair:#5bbf7a; --fair-bg:color-mix(in srgb,#36a25b 22%,var(--brand-900)); --fair-ink:#86d3a0;
+  --warn:#e3bb55; --warn-bg:color-mix(in srgb,#d4a437 20%,var(--brand-900)); --warn-ink:#e3bb55;
+  --high:#ef8a5a; --high-bg:color-mix(in srgb,#c4521f 24%,var(--brand-900)); --high-ink:#ef8a5a;
+  --alert:#f17680; --alert-bg:color-mix(in srgb,#cc2f3a 26%,var(--brand-900)); --alert-ink:#f17680;
+  --info:#5fa6a9; --info-bg:color-mix(in srgb,#1d6470 30%,var(--brand-900));
+
+  --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+  --shadow:0 10px 28px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.4);
+  --shadow-lg:0 24px 54px rgba(0,0,0,.6);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Assistant","Heebo",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  font-size:17px; line-height:1.6; min-height:100vh; -webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(120% 60% at 100% 0%, color-mix(in srgb,var(--brand-500) 7%,transparent) 0%, transparent 60%);
+}
+h1,h2,h3,.display{font-family:"Heebo","Assistant",sans-serif; line-height:1.2; letter-spacing:-.01em}
+button{font-family:inherit; cursor:pointer}
+a{color:var(--accent-ink); text-decoration-thickness:.08em; text-underline-offset:2px}
+.wrap{max-width:var(--maxw); margin-inline:auto; padding-inline:20px}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky; top:0; z-index:30; backdrop-filter:saturate(1.4) blur(10px);
+  background:color-mix(in srgb,var(--bg) 82%,transparent); border-bottom:1px solid var(--line)}
+.topbar .row{display:flex; align-items:center; gap:12px; padding-block:11px}
+.logo{display:flex; align-items:center; gap:11px; text-decoration:none; color:inherit}
+.logo .mark{width:40px; height:40px; border-radius:11px; object-fit:cover; box-shadow:var(--shadow-sm); background:#fff; flex:none}
+.logo .name{font-family:"Heebo",sans-serif; font-weight:800; font-size:1.28rem; letter-spacing:-.02em}
+.logo .name small{display:block; font-size:.62rem; font-weight:600; letter-spacing:.18em; color:var(--ink-3); margin-top:-2px}
+.spacer{flex:1}
+.icon-btn{width:42px; height:42px; border-radius:11px; border:1px solid var(--line); background:var(--surface);
+  color:var(--ink-2); font-size:1.15rem; display:grid; place-items:center; transition:.18s}
+.icon-btn:hover{border-color:var(--line-2); color:var(--ink)}
+.icon-btn:focus-visible{outline:none; box-shadow:var(--ring)}
+
+/* ---------- hero ---------- */
+.hero{padding-block:42px 18px; text-align:center}
+.eyebrow{display:inline-flex; align-items:center; gap:7px; font-weight:700; font-size:.8rem; letter-spacing:.04em;
+  color:var(--accent-ink); background:var(--accent-soft); border:1px solid color-mix(in srgb,var(--brand-400) 28%,transparent);
+  padding:6px 14px; border-radius:999px}
+.hero h1{font-size:clamp(1.9rem,6.4vw,2.85rem); font-weight:800; margin:18px 0 10px}
+.hero h1 .em{background:var(--brand-grad); -webkit-background-clip:text; background-clip:text; color:transparent}
+.hero p.lead{font-size:1.1rem; color:var(--ink-2); max-width:48ch; margin:0 auto 8px}
+.trustline{margin-top:14px; font-size:.86rem; color:var(--ink-3); display:flex; gap:18px; justify-content:center; flex-wrap:wrap}
+.trustline span{display:inline-flex; gap:6px; align-items:center}
+
+/* ---------- cards ---------- */
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow); padding:24px}
+.card.pad-lg{padding:28px}
+section{margin-block:22px}
+.section-title{display:flex; align-items:center; gap:10px; font-size:1.15rem; font-weight:800; margin:0 0 4px}
+.section-sub{color:var(--ink-2); margin:0 0 18px; font-size:.96rem}
+.step-num{width:30px; height:30px; flex:none; border-radius:9px; background:var(--accent-soft); color:var(--accent-ink);
+  display:grid; place-items:center; font-weight:800; font-size:.95rem}
+
+/* ---------- form ---------- */
+.grid{display:grid; gap:14px}
+@media(min-width:560px){ .grid.cols-2{grid-template-columns:1fr 1fr} }
+.field label{display:block; font-weight:700; font-size:.9rem; margin-bottom:6px}
+.field .hint{font-weight:500; color:var(--ink-3); font-size:.8rem}
+.control{width:100%; height:52px; padding:0 14px; font-size:1.02rem; font-family:inherit; color:var(--ink);
+  background:var(--field); border:1.5px solid var(--field-line); border-radius:var(--radius-sm); transition:.16s; appearance:none}
+select.control{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%237d949a' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:left 14px center; padding-inline-start:14px; padding-inline-end:40px}
+.control:focus{outline:none; border-color:var(--brand-500); box-shadow:var(--ring)}
+.control::placeholder{color:var(--ink-3)}
+.input-money{position:relative}
+.input-money .control{padding-inline-start:42px}
+.input-money .cur{position:absolute; inset-inline-start:14px; top:0; height:52px; display:grid; place-items:center;
+  color:var(--ink-3); font-weight:700; pointer-events:none}
+.btn{height:54px; padding:0 26px; border:none; border-radius:var(--radius-sm); font-size:1.05rem; font-weight:800;
+  font-family:"Heebo",sans-serif; background:var(--accent); color:var(--on-accent); transition:.18s; box-shadow:var(--shadow-sm);
+  display:inline-flex; align-items:center; justify-content:center; gap:9px; width:100%}
+.btn:hover{background:var(--accent-hover); transform:translateY(-1px); box-shadow:var(--shadow)}
+.btn:focus-visible{outline:none; box-shadow:var(--ring)}
+.btn.ghost{background:transparent; color:var(--accent-ink); border:1.5px solid var(--line-2); box-shadow:none}
+.btn.ghost:hover{background:var(--accent-soft); border-color:var(--brand-400)}
+.btn.sm{height:44px; font-size:.92rem; padding:0 18px; width:auto}
+
+/* ---------- result ---------- */
+#result{display:none}
+#result.show{display:block; animation:rise .4s var(--ease,cubic-bezier(.2,0,0,1)) both}
+@keyframes rise{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
+.verdict{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+.verdict .badge{font-family:"Heebo",sans-serif; font-weight:800; font-size:1.02rem; padding:9px 16px; border-radius:999px; white-space:nowrap}
+.verdict .delta{font-family:"Heebo",sans-serif; font-weight:800; font-size:2.4rem; line-height:1}
+.verdict .delta small{font-size:1rem; font-weight:600; color:var(--ink-2)}
+.b-fair{background:var(--fair-bg); color:var(--fair-ink)}
+.b-warn{background:var(--warn-bg); color:var(--warn-ink)}
+.b-high{background:var(--high-bg); color:var(--high-ink)}
+.b-alert{background:var(--alert-bg); color:var(--alert-ink)}
+.b-info{background:var(--info-bg); color:var(--info)}
+
+.gauge{margin:20px 0 6px}
+.gauge .track{position:relative; height:14px; border-radius:999px; overflow:hidden;
+  background:linear-gradient(90deg,#2a8049 0%, #6cae3e 22%, #d4a437 50%, #c4521f 74%, #cc2f3a 100%)}
+[dir=rtl] .gauge .track{background:linear-gradient(270deg,#2a8049 0%, #6cae3e 22%, #d4a437 50%, #c4521f 74%, #cc2f3a 100%)}
+.gauge .pin{position:absolute; top:-7px; width:6px; height:28px; border-radius:6px; background:var(--ink);
+  box-shadow:0 0 0 3px var(--surface); transition:inset-inline-start .6s var(--ease,cubic-bezier(.2,0,0,1))}
+.gauge .scale{display:flex; justify-content:space-between; font-size:.74rem; color:var(--ink-3); margin-top:8px; font-weight:600}
+
+.stat-row{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px}
+.stat{background:var(--sunken); border:1px solid var(--line); border-radius:var(--radius-sm); padding:13px 15px}
+.stat .k{font-size:.78rem; color:var(--ink-3); font-weight:600}
+.stat .v{font-family:"Heebo",sans-serif; font-weight:800; font-size:1.32rem; margin-top:2px}
+.stat .v small{font-size:.8rem; font-weight:600; color:var(--ink-2)}
+
+.comps{margin-top:8px}
+.comp{display:flex; align-items:center; gap:12px; padding:12px 4px; border-bottom:1px dashed var(--line)}
+.comp:last-child{border-bottom:none}
+.comp .dot{width:34px; height:34px; flex:none; border-radius:9px; background:var(--accent-soft); color:var(--accent-ink);
+  display:grid; place-items:center; font-weight:800; font-size:.86rem}
+.comp .meta{flex:1; min-width:0}
+.comp .meta b{font-weight:700}
+.comp .meta .sub{font-size:.82rem; color:var(--ink-3)}
+.comp .price{font-family:"Heebo",sans-serif; font-weight:800; white-space:nowrap}
+.comp .price small{display:block; font-size:.72rem; font-weight:600; color:var(--ink-3); text-align:start}
+
+.script{background:var(--sunken); border:1px dashed var(--line-2); border-radius:var(--radius); padding:18px 18px 16px;
+  font-size:1.02rem; line-height:1.75; white-space:pre-wrap}
+.script-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px}
+
+.note{display:flex; gap:11px; align-items:flex-start; background:var(--info-bg); border:1px solid color-mix(in srgb,var(--info) 28%,transparent);
+  color:var(--ink-2); border-radius:var(--radius); padding:14px 16px; font-size:.9rem; line-height:1.6}
+.note .i{flex:none; font-size:1.1rem}
+.confidence{display:inline-flex; align-items:center; gap:7px; font-size:.82rem; font-weight:600; color:var(--ink-2)}
+.conf-bars{display:inline-flex; gap:3px}
+.conf-bars i{width:7px; height:13px; border-radius:2px; background:var(--line-2)}
+.conf-bars i.on{background:var(--gold-500)}
+
+/* ---------- contribute ---------- */
+.contribute{background:linear-gradient(135deg, color-mix(in srgb,var(--sig-500) 12%,var(--surface)), var(--surface));
+  border:1px solid color-mix(in srgb,var(--sig-500) 26%,var(--line))}
+.pill-count{display:inline-flex; align-items:center; gap:7px; background:var(--fair-bg); color:var(--fair-ink);
+  font-weight:700; font-size:.82rem; padding:5px 12px; border-radius:999px}
+
+/* ---------- how / methodology ---------- */
+.how{display:grid; gap:14px}
+@media(min-width:620px){ .how{grid-template-columns:repeat(3,1fr)} }
+.how .h{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:18px}
+.how .h .n{width:32px; height:32px; border-radius:9px; background:var(--brand-grad); color:#fff; display:grid; place-items:center; font-weight:800; margin-bottom:10px}
+.how .h b{display:block; margin-bottom:4px; font-family:"Heebo",sans-serif}
+.how .h p{margin:0; font-size:.9rem; color:var(--ink-2)}
+
+details.method{background:var(--sunken); border:1px solid var(--line); border-radius:var(--radius); padding:4px 18px; margin-top:14px}
+details.method summary{cursor:pointer; font-weight:700; padding:13px 0; list-style:none; display:flex; align-items:center; gap:8px}
+details.method summary::-webkit-details-marker{display:none}
+details.method summary::after{content:"＋"; margin-inline-start:auto; color:var(--ink-3); font-weight:700}
+details.method[open] summary::after{content:"－"}
+details.method .body{padding-bottom:16px; font-size:.92rem; color:var(--ink-2); line-height:1.7}
+details.method .body ul{margin:8px 0; padding-inline-start:20px}
+details.method .body code{background:var(--bg-2); padding:2px 6px; border-radius:5px; font-size:.85em}
+
+/* ---------- footer ---------- */
+footer{margin-top:40px; border-top:1px solid var(--line); padding-block:26px 40px; text-align:center}
+.studio-badge{display:inline-flex; align-items:center; gap:10px; background:#1f2c3e; border-radius:12px; padding:9px 16px; margin-bottom:14px}
+.studio-badge img{height:18px; width:auto; display:block}
+footer .legal{color:var(--ink-3); font-size:.82rem; line-height:1.7}
+footer .legal a{color:var(--ink-2)}
+
+.toast{position:fixed; inset-block-end:20px; inset-inline:0; margin-inline:auto; width:max-content; max-width:90%;
+  background:var(--n-900); color:#fff; padding:12px 20px; border-radius:999px; font-weight:600; box-shadow:var(--shadow-lg);
+  opacity:0; transform:translateY(10px); transition:.25s; pointer-events:none; z-index:60}
+[data-mode="dark"] .toast{background:#fff; color:var(--brand-950)}
+.toast.show{opacity:1; transform:none}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap row">
+    <a class="logo" href="#top">
+      <img class="mark" src="Brand/hogen-primary.jpg" alt="הוגן Fairent">
+      <span class="name">הוגן<small>FAIRENT</small></span>
+    </a>
+    <span class="spacer"></span>
+    <button class="icon-btn" id="modeBtn" title="מצב כהה / בהיר" aria-label="החלפת מצב תצוגה">🌙</button>
+  </div>
+</header>
+
+<a id="top"></a>
+<main>
+
+  <!-- HERO -->
+  <div class="wrap hero">
+    <span class="eyebrow">⚖️ שוכרים? דעו את כוחכם</span>
+    <h1>האם אתם משלמים <span class="em">יותר מדי</span><br>על שכר הדירה?</h1>
+    <p class="lead">הזינו את הכתובת ואת שכר הדירה המבוקש — ותוך שניות תדעו אם הוא הוגן ביחס לשוק, תקבלו דירות להשוואה ותסריט מיקוח מוכן לשליחה.</p>
+    <div class="trustline">
+      <span>🔒 אנונימי לגמרי</span>
+      <span>🇮🇱 עברית · נתוני ישראל</span>
+      <span>💬 ללא עלות</span>
+    </div>
+  </div>
+
+  <!-- CHECKER -->
+  <section class="wrap" id="checker">
+    <div class="card pad-lg">
+      <div class="section-title"><span class="step-num">1</span> בדקו את הדירה שלכם</div>
+      <p class="section-sub">ככל שתזינו יותר פרטים, ההערכה תהיה מדויקת יותר. שדות עם <b>*</b> הם חובה.</p>
+
+      <form id="checkForm" novalidate>
+        <div class="grid cols-2">
+          <div class="field">
+            <label for="city">עיר *</label>
+            <select id="city" class="control" required>
+              <option value="" disabled selected>בחרו עיר…</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="hood">שכונה / אזור <span class="hint">(לא חובה)</span></label>
+            <input id="hood" class="control" type="text" placeholder="לדוגמה: פלורנטין, רמת אביב…" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="rooms">מספר חדרים *</label>
+            <select id="rooms" class="control" required>
+              <option value="" disabled selected>בחרו…</option>
+              <option value="1">1</option><option value="1.5">1.5</option>
+              <option value="2">2</option><option value="2.5">2.5</option>
+              <option value="3" selected>3</option><option value="3.5">3.5</option>
+              <option value="4">4</option><option value="4.5">4.5</option>
+              <option value="5">5</option><option value="5.5">5+</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="sqm">שטח במ״ר <span class="hint">(לא חובה — משפר דיוק)</span></label>
+            <input id="sqm" class="control" type="number" inputmode="numeric" min="10" max="400" placeholder="לדוגמה: 75">
+          </div>
+        </div>
+        <div class="field" style="margin-top:14px">
+          <label for="rent">שכר הדירה המבוקש (לחודש) *</label>
+          <div class="input-money">
+            <span class="cur">₪</span>
+            <input id="rent" class="control" type="number" inputmode="numeric" min="500" max="100000" placeholder="לדוגמה: 6,200" required>
+          </div>
+        </div>
+        <div style="margin-top:20px">
+          <button class="btn" type="submit">בדקו אם המחיר הוגן ⚖️</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- RESULT -->
+    <div class="card pad-lg" id="result" style="margin-top:18px" aria-live="polite">
+      <div class="section-title"><span class="step-num">2</span> ההערכה שלכם</div>
+      <p class="section-sub" id="resProfile"></p>
+
+      <div class="verdict">
+        <span class="badge" id="resBadge"></span>
+        <div>
+          <div class="delta" id="resDelta"></div>
+          <div style="font-size:.9rem; color:var(--ink-2)" id="resDeltaSub"></div>
+        </div>
+      </div>
+
+      <div class="gauge">
+        <div class="track"><div class="pin" id="resPin" style="inset-inline-start:50%"></div></div>
+        <div class="scale"><span>מתחת לשוק</span><span>הוגן</span><span>גבוה</span><span>גבוה מאוד</span></div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat"><div class="k">מחיר הוגן מוערך לפרופיל זה</div><div class="v" id="resFair"></div></div>
+        <div class="stat"><div class="k">טווח שוק סביר</div><div class="v" id="resRange"></div></div>
+      </div>
+
+      <h3 style="margin:24px 0 2px; font-size:1.05rem">דירות דומות באזור</h3>
+      <p style="margin:0 0 6px; font-size:.82rem; color:var(--ink-3)">דוגמאות מודלות סביב מחיר השוק לפרופיל זה (PoC).</p>
+      <div class="comps" id="resComps"></div>
+
+      <h3 style="margin:24px 0 8px; font-size:1.05rem">תסריט מיקוח מוכן</h3>
+      <div class="script">
+        <div class="script-head">
+          <span class="confidence">רמת ביטחון בנתונים:
+            <span class="conf-bars" id="resConf"><i></i><i></i><i></i><i></i><i></i></span>
+          </span>
+          <button class="btn ghost sm" id="copyBtn" type="button">📋 העתקה</button>
+        </div>
+        <div id="resScript"></div>
+      </div>
+
+      <div class="note" style="margin-top:16px">
+        <span class="i">ℹ️</span>
+        <span id="resSource"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTRIBUTE -->
+  <section class="wrap" id="contribute">
+    <div class="card pad-lg contribute">
+      <div class="section-title">🤝 עזרו לשוכרים הבאים</div>
+      <p class="section-sub">בישראל אין מרשם שכירות ציבורי. כל שוכר ששולח <b>כמה הוא באמת משלם</b> (אנונימית) מחזק את בסיס הנתונים — וההערכות נעשות מדויקות יותר לכולם.</p>
+      <p class="pill-count" id="contribCount">📈 0 תרומות נאספו עד כה</p>
+      <form id="contribForm" style="margin-top:16px">
+        <div class="grid cols-2">
+          <div class="field">
+            <label for="cCity">עיר</label>
+            <select id="cCity" class="control" required><option value="" disabled selected>בחרו עיר…</option></select>
+          </div>
+          <div class="field">
+            <label for="cRooms">חדרים</label>
+            <select id="cRooms" class="control" required>
+              <option value="" disabled selected>בחרו…</option>
+              <option>1</option><option>1.5</option><option>2</option><option>2.5</option>
+              <option>3</option><option>3.5</option><option>4</option><option>4.5</option><option>5</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="cRent">כמה אתם משלמים בפועל (₪/חודש)</label>
+            <div class="input-money"><span class="cur">₪</span>
+              <input id="cRent" class="control" type="number" inputmode="numeric" min="500" placeholder="לדוגמה: 5,400" required></div>
+          </div>
+          <div class="field">
+            <label for="cSqm">שטח במ״ר <span class="hint">(לא חובה)</span></label>
+            <input id="cSqm" class="control" type="number" inputmode="numeric" placeholder="לדוגמה: 68">
+          </div>
+        </div>
+        <div style="margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; align-items:center">
+          <button class="btn" type="submit" style="width:auto">שליחה אנונימית 🔒</button>
+          <span style="font-size:.82rem; color:var(--ink-3)">לא נאסף שם, טלפון או כתובת מדויקת.</span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="wrap" id="how">
+    <h2 class="section-title" style="font-size:1.3rem">איך זה עובד</h2>
+    <div class="how">
+      <div class="h"><div class="n">1</div><b>מזינים פרטים</b><p>עיר, חדרים, גודל ושכר הדירה המבוקש — ללא הרשמה.</p></div>
+      <div class="h"><div class="n">2</div><b>מחשבים הוגנות</b><p>משווים לבסיס נתוני שוק שקוף ומחזירים אחוז סטייה מהמחיר ההוגן.</p></div>
+      <div class="h"><div class="n">3</div><b>מתמקחים בביטחון</b><p>מקבלים דירות להשוואה ותסריט מבוסס-נתונים לשליחה לבעל הבית.</p></div>
+    </div>
+
+    <details class="method">
+      <summary>🔬 שקיפות מלאה: מאיפה הנתונים ואיך מחושבת ההוגנות</summary>
+      <div class="body">
+        <p>אנחנו מאמינים שאסור לבקש מכם לסמוך עלינו בעיניים עצומות. הנה בדיוק מה שקורה מאחורי הקלעים בגרסת ה-PoC הזו:</p>
+        <ul>
+          <li><b>בסיס הנתונים</b> — ערכי שוק התחלתיים (₪ למ״ר לפי עיר) המבוססים על סדרי גודל ציבוריים (הלשכה המרכזית לסטטיסטיקה, מדדי שכירות). אלו ערכי <i>seed</i> להמחשה — ייכנס מקור נתונים רשמי בהמשך.</li>
+          <li><b>תרומות שוכרים</b> — מה שאתם והקהילה שולחים נשמר מקומית במכשיר (PoC) ומשוקלל לתוך ההערכה לעיר שלכם, ומעלה את רמת הביטחון.</li>
+          <li><b>חישוב ההוגנות</b> — מחיר הוגן ≈ <code>שטח × ₪ למ״ר בעיר</code> (או הערכה לפי חדרים אם אין שטח). הסטייה = <code>(מבוקש − הוגן) ÷ הוגן</code>.</li>
+          <li><b>הסיווג</b> — עד ‎±7% נחשב הוגן · 7%–18% מעט גבוה · 18%–35% גבוה · מעל 35% גבוה משמעותית.</li>
+        </ul>
+        <p>זו הערכה לכוח מיקוח — לא ייעוץ משפטי או שמאות מוסמכת.</p>
+      </div>
+    </details>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="studio-badge"><img src="3shamrocks.png" alt="3Shamrocks Studio"></div>
+      <div class="legal">
+        הוגן™ (Fairent) — מוצר של 3Shamrocks Studio · גרסת הדגמה (PoC)<br>
+        © 2026 3Shamrocks Studio. All rights reserved.
+      </div>
+    </div>
+  </footer>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================================
+   FAIRENT engine — transparent heuristic over seed proxy benchmarks.
+   ⚠️ SEED DATA: ₪/m²/month figures are realistic order-of-magnitude proxies for
+   a PoC, to be replaced by an official CBS-derived feed (see DATA-STRATEGY.md).
+   ============================================================================ */
+const NIS = n => '₪' + Math.round(n).toLocaleString('he-IL');
+
+// city -> base asking rent ₪ per m² per month (seed proxy, ~2024 order of magnitude)
+const CITY = {
+  "תל אביב–יפו":95, "רמת גן":76, "גבעתיים":80, "הרצליה":82, "רמת השרון":84,
+  "ירושלים":62, "חיפה":47, "באר שבע":37, "נתניה":57, "ראשון לציון":62,
+  "פתח תקווה":60, "חולון":58, "בת ים":58, "אשדוד":48, "אשקלון":42,
+  "רחובות":58, "כפר סבא":63, "רעננה":69, "מודיעין":58, "נהריה":36,
+  "אילת":52, "בית שמש":46, "באר יעקב":52, "יבנה":50, "אחר / עיר אחרת":50
+};
+// rooms -> typical apartment m² (fallback when size unknown)
+const ROOM_SQM = {1:34,1.5:42,2:50,2.5:58,3:68,3.5:78,4:90,4.5:102,5:115,5.5:130};
+const HOODS = ["מרכז העיר","שכונה ותיקה","אזור מתחדש","שכונה שקטה","קרוב לתחבורה"];
+
+const CONTRIB_KEY = "fairent_contrib_v1";
+const loadContrib = () => { try{return JSON.parse(localStorage.getItem(CONTRIB_KEY))||[]}catch(e){return[]} };
+const saveContrib = a => localStorage.setItem(CONTRIB_KEY, JSON.stringify(a));
+
+// populate city dropdowns
+const cityNames = Object.keys(CITY);
+for (const sel of [document.getElementById('city'), document.getElementById('cCity')]){
+  cityNames.forEach(c => { const o=document.createElement('option'); o.value=o.textContent=c; sel.appendChild(o); });
+}
+
+/* ---- benchmark: blend seed proxy with local crowdsourced contributions ---- */
+function benchmark(city, rooms, sqm){
+  const size = sqm && sqm>=10 ? sqm : (ROOM_SQM[rooms]||68);
+  let ppm = CITY[city] ?? 50;            // seed ₪/m²
+  let weightSeed = 3;                    // seed counts as ~3 soft data points
+  let n = 0;
+  // fold in matching contributions (same city, ±1 room) -> nudges ppm
+  const contrib = loadContrib().filter(c => c.city===city && Math.abs(c.rooms-rooms)<=1 && c.ppm>0);
+  let num = ppm*weightSeed, den = weightSeed;
+  contrib.forEach(c => { num += c.ppm; den += 1; n++; });
+  ppm = num/den;
+  const fair = ppm * size;
+  return { fair, ppm, size, nContrib:n };
+}
+
+function classify(delta){
+  if (delta < -0.08) return {key:'below', cls:'b-info',  label:'מתחת למחיר השוק', pin:12};
+  if (delta <= 0.07) return {key:'fair',  cls:'b-fair',  label:'מחיר הוגן',       pin:33};
+  if (delta <= 0.18) return {key:'warn',  cls:'b-warn',  label:'מעט מעל השוק',    pin:55};
+  if (delta <= 0.35) return {key:'high',  cls:'b-high',  label:'גבוה מהשוק',      pin:74};
+  return {key:'alert', cls:'b-alert', label:'גבוה משמעותית', pin:92};
+}
+
+function makeComps(city, fair, size, rooms){
+  const out=[]; const variants=[-0.11,-0.04,0.03,0.09];
+  variants.forEach((v,i)=>{
+    const price=fair*(1+v); const s=Math.round(size*(1+ (v/2)));
+    out.push({hood:HOODS[i%HOODS.length], rooms, sqm:s, price, ppm:price/s});
+  });
+  return out.sort((a,b)=>a.price-b.price);
+}
+
+function buildScript(city, rooms, asking, fair, delta, cls){
+  const gap = asking - fair;
+  const pct = Math.round(Math.abs(delta)*100);
+  const target = Math.round(fair/50)*50;
+  if (cls.key==='below' || cls.key==='fair'){
+    return `שלום,\nבדקתי את שכר הדירה המבוקש (${NIS(asking)}) מול נתוני שוק לדירת ${rooms} חדרים ב${city}.\nהמחיר נראה הוגן וסביר ביחס לאזור. אשמח לקדם את החתימה על החוזה — בכפוף לבדיקת תקינות הדירה ותנאי תשלום הוגנים.\nתודה.`;
+  }
+  return `שלום,\nאני מעוניין/ת בדירה ורוצה להתקדם — אך בדקתי את המחיר מול השוק.\nלפי נתוני שכירות לדירת ${rooms} חדרים ב${city}, מחיר השוק ההוגן הוא סביב ${NIS(fair)} לחודש. המחיר המבוקש (${NIS(asking)}) גבוה ב-${pct}% מכך — פער של כ-${NIS(gap)} בחודש, שהם ${NIS(gap*12)} בשנה.\nאני מציע/ה להעמיד את שכר הדירה על ${NIS(target)} לחודש. אני שוכר/ת רציני/ת ואמין/ה, ואשמח לחתום במהירות בתנאים הוגנים.\nאשמח לשמוע מה דעתך. תודה!`;
+}
+
+let lastScript = "";
+document.getElementById('checkForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const city = document.getElementById('city').value;
+  const rooms = parseFloat(document.getElementById('rooms').value);
+  const sqm = parseFloat(document.getElementById('sqm').value)||0;
+  const asking = parseFloat(document.getElementById('rent').value)||0;
+  if (!city || !rooms || !asking){ toast('נא למלא עיר, חדרים ושכר דירה'); return; }
+
+  const {fair, ppm, size, nContrib} = benchmark(city, rooms, sqm);
+  const delta = (asking - fair)/fair;
+  const cls = classify(delta);
+  const lo = fair*0.92, hi = fair*1.12;
+
+  document.getElementById('resProfile').textContent =
+    `דירת ${rooms} חדרים${sqm?` · ${sqm} מ״ר`:''} ב${city}${document.getElementById('hood').value?` · ${document.getElementById('hood').value}`:''}`;
+  const badge=document.getElementById('resBadge'); badge.className='badge '+cls.cls; badge.textContent=cls.label;
+
+  const sign = delta>=0?'+':'−';
+  document.getElementById('resDelta').innerHTML = `${sign}${Math.round(Math.abs(delta)*100)}% <small>מול השוק</small>`;
+  document.getElementById('resDelta').style.color =
+    cls.key==='fair'||cls.key==='below' ? 'var(--fair)' : cls.key==='warn' ? 'var(--warn)' : cls.key==='high' ? 'var(--high)' : 'var(--alert)';
+  document.getElementById('resDeltaSub').textContent =
+    delta>=0 ? `אתם משלמים ${NIS(asking-fair)} יותר מהמחיר ההוגן בחודש (≈ ${NIS((asking-fair)*12)} בשנה).`
+             : `המחיר נמוך מהשוק — עסקה טובה.`;
+  document.getElementById('resPin').style.insetInlineStart = cls.pin+'%';
+  document.getElementById('resFair').innerHTML = `${NIS(fair)} <small>/ חודש</small>`;
+  document.getElementById('resRange').innerHTML = `${NIS(lo)}–${NIS(hi)}`;
+
+  // comparables
+  const comps = makeComps(city, fair, size, rooms);
+  document.getElementById('resComps').innerHTML = comps.map((c,i)=>`
+    <div class="comp">
+      <div class="dot">${i+1}</div>
+      <div class="meta"><b>${c.rooms} חד׳ · ${c.sqm} מ״ר</b><div class="sub">${c.hood}, ${city}</div></div>
+      <div class="price">${NIS(c.price)}<small>${NIS(c.ppm)}/מ״ר</small></div>
+    </div>`).join('');
+
+  // confidence: more contributions -> more bars (2 baseline + contrib)
+  const conf = Math.max(2, Math.min(5, 2 + Math.ceil(nContrib/2)));
+  document.querySelectorAll('#resConf i').forEach((b,i)=> b.className = i<conf?'on':'');
+
+  // script
+  lastScript = buildScript(city, rooms, asking, fair, delta, cls);
+  document.getElementById('resScript').textContent = lastScript;
+
+  document.getElementById('resSource').innerHTML =
+    `ההערכה מבוססת על נתוני <b>seed</b> ראשוניים (₪/מ״ר לפי עיר) ${nContrib?`+ <b>${nContrib} תרומות קהילה</b> תואמות`:''}. בגרסה מלאה ישולבו נתוני הלשכה המרכזית לסטטיסטיקה ומקורות נוספים. זו הערכת מיקוח — לא שמאות מוסמכת.`;
+
+  const r=document.getElementById('result'); r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+document.getElementById('copyBtn').addEventListener('click', ()=>{
+  navigator.clipboard?.writeText(lastScript).then(()=>toast('התסריט הועתק ✓')).catch(()=>toast('לא ניתן להעתיק'));
+});
+
+/* ---- contributions ---- */
+function refreshCount(){
+  const n=loadContrib().length;
+  document.getElementById('contribCount').textContent = `📈 ${n.toLocaleString('he-IL')} תרומות נאספו עד כה`;
+}
+document.getElementById('contribForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const city=document.getElementById('cCity').value;
+  const rooms=parseFloat(document.getElementById('cRooms').value);
+  const rent=parseFloat(document.getElementById('cRent').value)||0;
+  const sqm=parseFloat(document.getElementById('cSqm').value)||0;
+  if(!city||!rooms||!rent){ toast('נא למלא עיר, חדרים וסכום'); return; }
+  const size=sqm||ROOM_SQM[rooms]||68;
+  const arr=loadContrib(); arr.push({city,rooms,rent,sqm,ppm:rent/size,t:Date.now()});
+  saveContrib(arr); refreshCount(); e.target.reset();
+  toast('תודה! התרומה שלך נוספה לבסיס הנתונים 🤝');
+});
+
+/* ---- dark mode ---- */
+const modeBtn=document.getElementById('modeBtn');
+function setMode(m){ document.documentElement.dataset.mode=m; modeBtn.textContent=m==='dark'?'☀️':'🌙';
+  document.querySelector('meta[name=theme-color]').content = m==='dark'?'#091a21':'#0e5f52';
+  try{localStorage.setItem('fairent_mode',m)}catch(e){} }
+modeBtn.addEventListener('click',()=> setMode(document.documentElement.dataset.mode==='dark'?'light':'dark'));
+setMode(localStorage.getItem('fairent_mode') || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+
+/* ---- toast ---- */
+let tT; function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(tT); tT=setTimeout(()=>t.classList.remove('show'),2400); }
+
+refreshCount();
+</script>
+</body>
+</html>

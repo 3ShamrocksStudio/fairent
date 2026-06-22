@@ -1,0 +1,14 @@
+{
+  "name": "Fairent — הוגן · האם אתם משלמים יותר מדי על שכר דירה?",
+  "short_name": "הוגן",
+  "description": "כלי עברי-ראשון שנותן לשוכרים נתונים וכוח מיקוח כדי לשלם שכר דירה הוגן.",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0e2a33",
+  "theme_color": "#0e5f52",
+  "icons": [
+    { "src": "Brand/hogen-primary.jpg", "sizes": "1024x1024", "type": "image/jpeg", "purpose": "any" }
+  ]
+}
