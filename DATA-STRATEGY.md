@@ -179,12 +179,30 @@ heuristic over seed proxy data** so the flow is real and demonstrable today:
   appraisal" disclaimer; the methodology is spelled out in an in-app "שקיפות מלאה" panel.
 
 ## 8. Open action items (verify before scaling past PoC)
-- [ ] Confirm CBS average-rent **levels** are API-served vs. Excel-only; build the ingest accordingly.
-- [ ] Pull the exact CBS room-band × city table and replace the seed `₪/m²` numbers.
-- [ ] Quantify the BoI new-tenant uplift factor to apply over the renewal-based figures.
+- [x] **Confirm CBS average-rent levels are API-served vs. Excel-only.** → **PDF-only.** The level
+  table is **Table 4.9** (PDF); the CBS API serves only the rent *price index* (2024=100), not
+  shekel levels. Ingest = parse the quarterly PDF, not the API.
+  English file: `https://www.cbs.gov.il/he/publications/Madad/DocLib/2025/price09a/a4_9_e.pdf`
+- [x] **Pull the exact CBS room-band × city table and replace the seed `₪/m²` numbers.** → **Done.**
+  `index.html` now ships the real CBS **Q2 2025** table — national + all 6 districts + 18 big
+  cities, each × 4 room-bands (1–2 / 2.5–3 / 3.5–4 / 4.5–6). Values extracted from `a4_9_e.pdf`
+  and **independently verified** against the primary PDF (national bands, Jerusalem/North district
+  totals, full Ashkelon row) + a secondary cross-check (Q1 2025 national room-bands). Model switched
+  from `₪/m²×size` to **CBS actual rent by city×band**, presented as a **range with provenance**.
+  Cities CBS doesn't break out fall back to **district**, then **national**, and the UI says which.
+- [x] **Quantify the BoI/CBS new-tenant uplift factor.** → CBS CPI release **017/2026** (Dec-2025
+  data): lease **renewals +3.0% y/y** vs **new tenants +4.6% y/y** → **~1.6pp** new-lease premium.
+  Surfaced as an honest note in the result + transparency panel (not silently inflating the figure).
+- [ ] **Refresh cadence:** Q3 2025 / Q1 2026 figures are circulating (secondary-quoted, ~+3.5% y/y
+  national) but no newer *primary level PDF* was confirmed. Re-pull `a4_9_*.pdf` each quarter.
 - [ ] Decide the asking-price posture: user-pasted comps (safe) vs. any permissible ingest.
 - [ ] Design the k-anonymized crowdsource backend (consent copy, ≥5-per-cell threshold, address jitter).
 - [ ] Check whether target municipalities publish machine-readable arnona-zone polygons.
+
+> **Data provenance note (2026-06-22):** all baked-in rent figures are CBS Table 4.9, **Q2 2025
+> (Apr–Jun), actual paid rent**, NIS/month. Verified against the primary CBS PDF. The figures are
+> ~1 year old (newest primary level table available) — we display the period and do **not**
+> extrapolate forward. Replace when CBS publishes a newer `a4_9` cut.
 
 ## Honest viability verdict
 **Build it.** The data foundation is real and legal — CBS gives genuine *actual* rent at

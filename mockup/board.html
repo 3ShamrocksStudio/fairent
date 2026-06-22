@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>הוגן · Fairent — concept mockup (CBS data)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Assistant:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal-700:#143f4b; --teal-600:#16505d; --teal-500:#1d6470; --teal-400:#357f86; --teal-50:#e8f3f4;
+    --green:#2a8049; --green-500:#36a25b;
+    --gold:#d4a437; --gold-400:#e3bb55;
+    --ink:#172227; --ink-2:#445860; --ink-3:#5b727a;
+    --bg:#f7faf9; --card:#fff; --line:#d2dedd; --sunken:#eef4f3;
+    --fair:#1f8f54; --fair-bg:#e3f5e9; --warn:#b07706;
+    --high:#c4521f; --high-bg:#fbe7dc; --high-ink:#9d3f15; --alert:#cc2f3a;
+    --radius:16px; --radius-sm:11px; --radius-lg:24px;
+    --shadow:0 8px 24px rgba(9,26,33,.10),0 2px 6px rgba(9,26,33,.06);
+    --shadow-lg:0 22px 50px rgba(9,26,33,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Assistant',system-ui,sans-serif;color:var(--ink);
+    background:#0c222a url('assets/bg.png') center/cover fixed no-repeat;min-height:100vh;padding:46px 30px 30px}
+  h1,h2,h3,.dis{font-family:'Heebo',system-ui,sans-serif}
+  .head{text-align:center;color:#fff;margin-bottom:32px}
+  .kick{display:inline-flex;align-items:center;gap:9px;font-weight:800;font-size:.74rem;letter-spacing:.05em;
+    color:var(--gold-400);background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);
+    padding:7px 16px;border-radius:999px;backdrop-filter:blur(6px)}
+  .head h1{font-family:'Heebo';font-size:2.4rem;margin:15px 0 7px;text-shadow:0 3px 18px rgba(0,0,0,.35)}
+  .head h1 b{color:var(--gold-400)}
+  .head p{color:#cfe0e1;font-weight:600;font-size:1.02rem;max-width:660px;margin:0 auto}
+
+  .stage{display:flex;gap:26px;justify-content:center;align-items:flex-start;flex-wrap:nowrap;max-width:1340px;margin:0 auto}
+  .phone{width:380px;background:var(--bg);border-radius:40px;padding:13px;flex:0 0 auto;position:relative;
+    box-shadow:var(--shadow-lg),0 0 0 2px rgba(255,255,255,.10)}
+  .phone.hero{width:412px;transform:translateY(-16px);box-shadow:0 28px 64px rgba(6,18,24,.5),0 0 0 3px rgba(212,164,55,.5)}
+  .screen{background:var(--bg);border-radius:28px;overflow:hidden;height:798px;display:flex;flex-direction:column}
+  .hero .screen{height:830px}
+  .tag{position:absolute;top:-14px;right:50%;transform:translateX(50%);background:#fff;color:var(--teal-600);
+    font-family:'Heebo';font-weight:800;font-size:.78rem;padding:6px 16px;border-radius:999px;box-shadow:var(--shadow);white-space:nowrap;z-index:20}
+  .hero .tag{background:linear-gradient(120deg,var(--gold),#c08f1f);color:#fff}
+
+  .ah{display:flex;align-items:center;gap:10px;padding:15px 16px 12px;border-bottom:1px solid var(--line)}
+  .logo{width:40px;height:40px;border-radius:11px;object-fit:cover;background:#fff;box-shadow:0 2px 7px rgba(9,26,33,.12)}
+  .ah .tt b{font-family:'Heebo';font-size:1.18rem;display:block;line-height:1}
+  .ah .tt span{font-size:.62rem;font-weight:800;color:var(--ink-3);letter-spacing:.22em}
+  .scales{margin-inline-start:auto;width:38px;height:38px;border-radius:10px;background:var(--sunken);display:grid;place-items:center;font-size:1.15rem}
+
+  .body{flex:1;overflow:hidden;padding:16px}
+  .step{display:flex;align-items:center;gap:9px;margin-bottom:13px}
+  .step .num{width:30px;height:30px;border-radius:50%;background:var(--teal-50);color:var(--teal-600);
+    font-family:'Heebo';font-weight:800;display:grid;place-items:center;font-size:.95rem}
+  .step b{font-family:'Heebo';font-size:1.15rem}
+  .lab{font-weight:700;font-size:.84rem;color:var(--ink-2);margin:13px 2px 6px;display:block}
+  .lab .opt{color:var(--ink-3);font-weight:600;font-size:.76rem}
+  .control{width:100%;background:#fff;border:1.5px solid var(--line);border-radius:var(--radius-sm);
+    padding:13px 14px;font-family:inherit;font-size:1rem;color:var(--ink);display:flex;align-items:center;justify-content:space-between}
+  .control .ph{color:var(--ink-3)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .money{display:flex;align-items:center;border:1.5px solid var(--teal-400);border-radius:var(--radius-sm);overflow:hidden;background:#fff}
+  .money .cur{padding:0 13px;color:var(--ink-3);font-weight:700;font-size:1.1rem}
+  .money input{flex:1;border:none;padding:13px 6px;font-family:'Heebo';font-size:1.3rem;font-weight:800;color:var(--ink);background:none}
+  .cta{margin-top:16px;width:100%;border:none;background:var(--teal-500);color:#fff;font-family:'Heebo';
+    font-size:1.12rem;font-weight:700;padding:15px;border-radius:var(--radius-sm);box-shadow:0 8px 20px rgba(29,100,112,.35);cursor:pointer}
+  .note{margin-top:14px;background:var(--teal-50);border:1px solid #c8e2e3;border-radius:var(--radius-sm);padding:11px 13px;
+    font-size:.8rem;color:var(--teal-700);font-weight:600;line-height:1.5}
+  .trust{display:flex;gap:13px;justify-content:center;flex-wrap:wrap;margin-top:16px;color:var(--ink-3);font-weight:700;font-size:.78rem}
+
+  /* assess */
+  .badge{display:inline-block;font-family:'Heebo';font-weight:800;font-size:1.02rem;padding:8px 18px;border-radius:999px;
+    background:var(--high-bg);color:var(--high-ink)}
+  .delta{font-family:'Heebo';font-size:3rem;font-weight:800;color:var(--high);line-height:1;margin-top:12px}
+  .delta small{font-size:1rem;font-weight:700;color:var(--ink-2)}
+  .dsub{font-weight:600;color:var(--ink-2);font-size:.86rem;margin-top:6px;line-height:1.45}
+  .gauge{height:14px;border-radius:99px;margin:18px 0 6px;position:relative;
+    background:linear-gradient(90deg,#2a8049,#9ac44f,#e3bb55,#e08b4a,#cc2f3a)}
+  .gauge .pin{position:absolute;top:-4px;width:5px;height:22px;background:var(--ink);border-radius:3px;box-shadow:0 0 0 2px #fff}
+  .gscale{display:flex;justify-content:space-between;font-size:.66rem;font-weight:700;color:var(--ink-3)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:15px}
+  .stat{background:var(--sunken);border-radius:var(--radius-sm);padding:13px}
+  .stat .k{font-size:.74rem;font-weight:700;color:var(--ink-3);line-height:1.3}
+  .stat .v{font-family:'Heebo';font-size:1.5rem;font-weight:800;margin-top:5px}
+  .stat .v small{font-size:.78rem;font-weight:700;color:var(--ink-3)}
+  .src{margin-top:14px;background:var(--teal-50);border:1px solid #c8e2e3;border-radius:var(--radius-sm);
+    padding:11px 13px;font-size:.78rem;color:var(--teal-700);font-weight:600;line-height:1.55}
+  .src a{color:var(--teal-600);font-weight:800}
+  .src .pill{display:inline-block;background:var(--green-500);color:#fff;font-weight:800;font-size:.68rem;
+    padding:2px 9px;border-radius:99px;margin-bottom:6px}
+
+  /* negotiate */
+  .script{background:#fff;border:1.5px dashed var(--teal-400);border-radius:var(--radius);padding:15px;
+    font-size:.92rem;line-height:1.7;color:var(--ink);white-space:pre-line}
+  .copy{margin-top:12px;width:100%;border:none;background:var(--green);color:#fff;font-family:'Heebo';
+    font-weight:700;font-size:1rem;padding:13px;border-radius:var(--radius-sm);cursor:pointer}
+  .give{margin-top:13px;background:var(--sunken);border-radius:var(--radius-sm);padding:13px;text-align:center}
+  .give .q{font-family:'Heebo';font-weight:800;font-size:.98rem}
+  .give .s{font-size:.78rem;color:var(--ink-3);font-weight:600;margin-top:3px}
+
+  .legend{display:flex;gap:13px;justify-content:center;flex-wrap:wrap;margin:20px auto 0;max-width:900px}
+  .legend span{color:#e4efef;font-weight:700;font-size:.8rem;display:flex;align-items:center;gap:6px;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);padding:6px 13px;border-radius:99px}
+  .foot{text-align:center;margin:34px auto 4px}
+  .foot img{height:30px;background:#0e2730;padding:9px 18px;border-radius:13px;box-shadow:var(--shadow)}
+  .foot p{color:#9fb6b8;font-weight:700;font-size:.74rem;margin-top:12px;letter-spacing:.03em}
+</style>
+</head>
+<body>
+  <div class="head">
+    <span class="kick">⚖️ הוגן · Fairent — קונספט · נתוני שכר דירה בפועל מהלמ״ס</span>
+    <h1>כמה <b>באמת</b> עולה דירה כמו שלכם?</h1>
+    <p>לא מחירי בקשה מאתרי מודעות — שכר הדירה הממוצע ש<b>שולם בפועל</b>, לפי הלשכה המרכזית לסטטיסטיקה, עיר × מספר חדרים. כל הערכה מציגה טווח הוגן עם מקור גלוי.</p>
+  </div>
+
+  <div class="stage">
+
+    <!-- ① CHECK -->
+    <div class="phone">
+      <span class="tag">① בדיקה — 30 שניות, ללא הרשמה</span>
+      <div class="screen">
+        <div class="ah">
+          <img class="logo" src="assets/hogen.jpg" alt="הוגן">
+          <div class="tt"><b>הוגן</b><span>FAIRENT</span></div>
+          <div class="scales">⚖️</div>
+        </div>
+        <div class="body">
+          <div class="step"><span class="num">1</span><b>בדקו את הדירה שלכם</b></div>
+          <span class="lab">עיר *</span>
+          <div class="control">תל אביב–יפו <span>▾</span></div>
+          <div class="row2" style="margin-top:12px">
+            <div><span class="lab">מספר חדרים *</span><div class="control">3 <span>▾</span></div></div>
+            <div><span class="lab">שטח במ״ר <span class="opt">(לא חובה)</span></span><div class="control"><span class="ph">75</span></div></div>
+          </div>
+          <span class="lab">שכר הדירה המבוקש (לחודש) *</span>
+          <div class="money"><span class="cur">₪</span><input value="9,000" readonly></div>
+          <button class="cta">בדקו אם זה הוגן ←</button>
+          <div class="note">⚖️ ההשוואה היא לשכר דירה ש<b>שולם בפועל</b> (סקר שכר הדירה של הלמ״ס), לא למחירי מודעות שמנופחים כלפי מעלה.</div>
+          <div class="trust"><span>🔒 אנונימי</span><span>🇮🇱 נתוני ישראל</span><span>💬 ללא עלות</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ★ ASSESS (hero) -->
+    <div class="phone hero">
+      <span class="tag">★ התוצאה — טווח הוגן עם מקור</span>
+      <div class="screen">
+        <div class="ah">
+          <img class="logo" src="assets/hogen.jpg" alt="הוגן">
+          <div class="tt"><b>הוגן</b><span>FAIRENT</span></div>
+          <div class="scales">⚖️</div>
+        </div>
+        <div class="body">
+          <div style="font-weight:700;color:var(--ink-3);font-size:.84rem;margin-bottom:10px">דירת 3 חדרים · תל אביב–יפו</div>
+          <span class="badge">גבוה מהשוק</span>
+          <div class="delta">‎+29% <small>מול השוק</small></div>
+          <div class="dsub">אתם משלמים כ-₪2,024 יותר מהמחיר ההוגן בחודש (≈ ₪24,284 בשנה).</div>
+          <div class="gauge"><span class="pin" style="inset-inline-start:74%"></span></div>
+          <div class="gscale"><span>מתחת לשוק</span><span>הוגן</span><span>גבוה</span><span>גבוה מאוד</span></div>
+          <div class="stats">
+            <div class="stat"><div class="k">מחיר הוגן מוערך לפרופיל זה</div><div class="v">₪6,976 <small>/חודש</small></div></div>
+            <div class="stat"><div class="k">טווח שוק סביר</div><div class="v">₪6,279–7,465</div></div>
+          </div>
+          <div class="src">
+            <span class="pill">נתוני הלמ״ס · שכר בפועל</span><br>
+            מבוסס על <a href="#">נתוני הלשכה המרכזית לסטטיסטיקה</a> — שכר הדירה הממוצע בתל אביב–יפו לדירת <b>2.5–3 חד׳</b>, רבעון 2 2025 (לוח 4.9). שוכרים חדשים משלמים מעט יותר מחידושי חוזה (~1.6 נק׳ אחוז/שנה). הערכת טווח לכוח מיקוח — לא שמאות מוסמכת.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② NEGOTIATE -->
+    <div class="phone">
+      <span class="tag">② מיקוח — תסריט מוכן לשליחה</span>
+      <div class="screen">
+        <div class="ah">
+          <img class="logo" src="assets/hogen.jpg" alt="הוגן">
+          <div class="tt"><b>הוגן</b><span>FAIRENT</span></div>
+          <div class="scales">⚖️</div>
+        </div>
+        <div class="body">
+          <div class="step"><span class="num">3</span><b>מתמקחים בביטחון</b></div>
+          <div class="script">שלום,
+אני מעוניין/ת בדירה ורוצה להתקדם — אך בדקתי את המחיר מול השוק.
+לפי נתוני שכירות לדירת 3 חדרים בתל אביב–יפו, מחיר השוק ההוגן הוא סביב ₪6,976 לחודש. המחיר המבוקש (₪9,000) גבוה ב-29% מכך — פער של כ-₪2,024 בחודש.
+אני מציע/ה להעמיד את שכר הדירה על ₪7,000 לחודש. אני שוכר/ת רציני/ת ואמין/ה.
+אשמח לשמוע מה דעתך. תודה!</div>
+          <button class="copy">📋 העתקת התסריט</button>
+          <div class="give">
+            <div class="q">מה בסוף שילמתם? 🤝</div>
+            <div class="s">תרומה אנונימית שמדייקת את הנתונים לכולם — וזה היתרון שאף מתחרה לא יכול לקנות.</div>
+          </div>
+          <div class="note">בגרסת ייצור: שרת עם k-אנונימיות (≥5 דיווחים לכל תא), תואם תיקון 13 לחוק הגנת הפרטיות.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="legend">
+    <span>⚖️ שכר דירה ש<b>שולם בפועל</b>, לא מחירי בקשה</span>
+    <span>🏙️ פירוט עיר × מספר חדרים</span>
+    <span>📑 טווח עם מקור גלוי</span>
+    <span>🤝 תרומות קהילה = החפיר</span>
+  </div>
+
+  <div class="foot">
+    <img src="assets/3shamrocks.png" alt="3Shamrocks Studio">
+    <p dir="ltr">הוגן™ · FAIRENT — CBS-BACKED CONCEPT · © 2026 3SHAMROCKS STUDIO. ALL RIGHTS RESERVED.</p>
+  </div>
+</body>
+</html>
