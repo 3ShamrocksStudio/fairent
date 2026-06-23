@@ -229,10 +229,26 @@ details.method .body code{background:var(--bg-2); padding:2px 6px; border-radius
 
 /* ---------- footer ---------- */
 footer{margin-top:40px; border-top:1px solid var(--line); padding-block:26px 40px; text-align:center}
-.studio-badge{display:inline-flex; align-items:center; gap:10px; background:#1f2c3e; border-radius:12px; padding:9px 16px; margin-bottom:14px}
-.studio-badge img{height:18px; width:auto; display:block}
-footer .legal{color:var(--ink-3); font-size:.82rem; line-height:1.7}
-footer .legal a{color:var(--ink-2)}
+/* Studio credit — minimal Shomer standard (least focus): tiny logo + small line */
+.studio-credit{display:flex; align-items:center; justify-content:center; gap:9px; padding:16px 16px 8px; direction:ltr; flex-wrap:wrap}
+.studio-credit .sc-badge{display:inline-flex; align-items:center; background:var(--sunken); border:1px solid var(--line); border-radius:7px; padding:4px 8px}
+.studio-credit .sc-badge img{height:15px; width:auto; display:block; opacity:.92}
+.studio-credit .cr{font-size:10.5px; color:var(--ink-3); letter-spacing:.3px; line-height:1.4}
+.studio-credit .cr b{color:var(--ink-2); font-weight:700}
+/* Renter-intel chips + cards */
+.chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
+.chip{display:inline-flex; align-items:center; gap:6px; font-size:.86rem; font-weight:600; color:var(--ink-2); background:var(--sunken); border:1.5px solid var(--line); border-radius:999px; padding:7px 12px; cursor:pointer; user-select:none}
+.chip input{margin:0}
+.chip:has(input:checked){background:var(--accent-soft); border-color:var(--accent); color:var(--accent-ink)}
+.intel-card{margin-top:16px; background:var(--sunken); border:1px solid var(--line); border-radius:14px; padding:14px 16px}
+.intel-head{font-family:'Heebo'; font-weight:700; font-size:1rem; display:flex; align-items:center; gap:8px}
+.intel-n{margin-inline-start:auto; font-size:.74rem; font-weight:700; color:var(--ink-3); background:var(--card); border:1px solid var(--line); padding:2px 9px; border-radius:99px}
+.intel-row{font-size:.9rem; color:var(--ink-2); margin-top:10px; font-weight:600}
+.ichips{display:flex; flex-wrap:wrap; gap:7px; margin-top:7px}
+.ichip{font-size:.8rem; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:4px 10px; color:var(--high-ink); font-weight:700}
+.itip{margin-top:7px; font-size:.86rem; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:10px; padding:9px 12px; line-height:1.5}
+.intel-foot{font-size:.74rem; color:var(--ink-3); margin-top:12px}
+.intel-empty{font-size:.9rem; color:var(--ink-2)} .intel-empty a{color:var(--accent-ink); font-weight:700}
 
 .toast{position:fixed; inset-block-end:20px; inset-inline:0; margin-inline:auto; width:max-content; max-width:90%;
   background:var(--n-900); color:#fff; padding:12px 20px; border-radius:999px; font-weight:600; box-shadow:var(--shadow-lg);
@@ -359,6 +375,8 @@ footer .legal a{color:var(--ink-2)}
         <span class="i">ℹ️</span>
         <span id="resSource"></span>
       </div>
+
+      <div class="intel-card" id="resIntel"></div>
     </div>
   </section>
 
@@ -391,6 +409,24 @@ footer .legal a{color:var(--ink-2)}
             <label for="cSqm">שטח במ״ר <span class="hint">(לא חובה)</span></label>
             <input id="cSqm" class="control" type="number" inputmode="numeric" placeholder="לדוגמה: 68">
           </div>
+        </div>
+        <div class="field" style="margin-top:16px">
+          <label>מה כדאי שדיירים הבאים יידעו? <span class="hint">(בחרו כל מה שרלוונטי — אנונימי)</span></label>
+          <div class="chips" id="cIssues">
+            <label class="chip"><input type="checkbox" value="רעש משכנים">רעש משכנים</label>
+            <label class="chip"><input type="checkbox" value="בעיות אינסטלציה">בעיות אינסטלציה</label>
+            <label class="chip"><input type="checkbox" value="ליקויי תחזוקה">ליקויי תחזוקה</label>
+            <label class="chip"><input type="checkbox" value="אין חניה">אין חניה</label>
+            <label class="chip"><input type="checkbox" value="רטיבות/עובש">רטיבות/עובש</label>
+            <label class="chip"><input type="checkbox" value="מעלית">בעיית מעלית</label>
+            <label class="chip"><input type="checkbox" value="חימום/מיזוג">חימום/מיזוג</label>
+            <label class="chip"><input type="checkbox" value="מזיקים">מזיקים</label>
+            <label class="chip"><input type="checkbox" value="שכונה בעייתית">שכונה בעייתית</label>
+          </div>
+        </div>
+        <div class="field" style="margin-top:14px">
+          <label for="cTip">טיפ על המשכיר / הבניין <span class="hint">(לא חובה — אנונימי)</span></label>
+          <textarea id="cTip" class="control" rows="2" maxlength="240" placeholder="לדוגמה: המשכיר מחזיר פיקדון מהר והוגן · אינסטלציה ישנה · קשה למצוא חניה בערב"></textarea>
         </div>
         <div style="margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; align-items:center">
           <button class="btn" type="submit" style="width:auto">שליחה אנונימית 🔒</button>
@@ -425,14 +461,9 @@ footer .legal a{color:var(--ink-2)}
     </details>
   </section>
 
-  <footer>
-    <div class="wrap">
-      <div class="studio-badge"><img src="3shamrocks.png" alt="3Shamrocks Studio"></div>
-      <div class="legal">
-        הוגן™ (Fairent) — מוצר של 3Shamrocks Studio · גרסת הדגמה (PoC)<br>
-        © 2026 3Shamrocks Studio. All rights reserved.
-      </div>
-    </div>
+  <footer class="studio-credit">
+    <span class="sc-badge"><img src="3shamrocks.png" alt="3Shamrocks Studio" width="100" height="15"></span>
+    <span class="cr">© 2026 <b>3Shamrocks Studio</b> · All rights reserved.</span>
   </footer>
 </main>
 
@@ -446,6 +477,36 @@ footer .legal a{color:var(--ink-2)}
    are paid-rent from the CBS Rent Survey, NOT asking prices or proxies.
    ============================================================================ */
 const NIS = n => '₪' + Math.round(n).toLocaleString('he-IL');
+
+/* ---- Renter intel: anonymous community knowledge per city (from contributions) ---- */
+const ISSUE_TAGS = ['רעש משכנים','בעיות אינסטלציה','ליקויי תחזוקה','אין חניה','רטיבות/עובש','מעלית','חימום/מיזוג','מזיקים','שכונה בעייתית'];
+const esc = s => String(s).replace(/[<>&"]/g, m => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[m]));
+function cityIntel(city){
+  const all = loadContrib().filter(c => c.city === city);
+  const counts = {}; const tips = []; let rentSum = 0, rentN = 0;
+  all.forEach(c => {
+    if (c.rent > 0) { rentSum += c.rent; rentN++; }
+    (c.issues || []).forEach(i => counts[i] = (counts[i] || 0) + 1);
+    if (c.tip) tips.push(c.tip);
+  });
+  return { n: all.length, avgRent: rentN ? Math.round(rentSum / rentN) : 0, rentN, counts, tips };
+}
+function renderIntel(city){
+  const el = document.getElementById('resIntel'); if (!el) return;
+  const it = cityIntel(city);
+  if (it.n === 0){
+    el.innerHTML = `<div class="intel-empty">🏘️ עדיין אין מודיעין דיירים על ${esc(city)}. <a href="#contribute">היו הראשונים לשתף ידע →</a></div>`;
+    return;
+  }
+  const issueChips = ISSUE_TAGS.filter(t => it.counts[t]).map(t => `<span class="ichip">${esc(t)} · ${it.counts[t]}</span>`).join('');
+  const tipsHtml = it.tips.slice(0, 3).map(t => `<div class="itip">“${esc(t)}”</div>`).join('');
+  el.innerHTML =
+    `<div class="intel-head">🏘️ מודיעין דיירים על ${esc(city)} <span class="intel-n">${it.n} דיווחים</span></div>` +
+    (it.avgRent ? `<div class="intel-row">שכר ששולם בפועל (דיווחי קהילה): <b>${NIS(it.avgRent)}</b> <span style="color:var(--ink-3);font-weight:600">(${it.rentN} דיווחים)</span></div>` : '') +
+    (issueChips ? `<div class="intel-row">מה דיירים מדווחים על האזור/הבניין:</div><div class="ichips">${issueChips}</div>` : '') +
+    (tipsHtml ? `<div class="intel-row">טיפים מהקהילה:</div>${tipsHtml}` : '') +
+    `<div class="intel-foot">ידע = כוח מיקוח 💪 · דיווחים אנונימיים מקהילת השוכרים (PoC — נשמר מקומית; בייצור: שרת k-אנונימי).</div>`;
+}
 
 /* ============================================================================
    CBS actual-rent data — Central Bureau of Statistics, Table 4.9
@@ -630,6 +691,8 @@ document.getElementById('checkForm').addEventListener('submit', e=>{
     `${nContrib?` שולבו גם <b>${nContrib} תרומות קהילה</b> תואמות.`:''}` +
     ` ${NEW_LEASE_NOTE} זו הערכת טווח לכוח מיקוח — לא שמאות מוסמכת.`;
 
+  renderIntel(city);
+
   const r=document.getElementById('result'); r.classList.add('show');
   r.scrollIntoView({behavior:'smooth', block:'start'});
 });
@@ -651,9 +714,11 @@ document.getElementById('contribForm').addEventListener('submit', e=>{
   const sqm=parseFloat(document.getElementById('cSqm').value)||0;
   if(!city||!rooms||!rent){ toast('נא למלא עיר, חדרים וסכום'); return; }
   const size=sqm||ROOM_SQM[rooms]||68;
-  const arr=loadContrib(); arr.push({city,rooms,rent,sqm,ppm:rent/size,t:Date.now()});
+  const issues=[...document.querySelectorAll('#cIssues input:checked')].map(c=>c.value);
+  const tip=(document.getElementById('cTip').value||'').trim().slice(0,240);
+  const arr=loadContrib(); arr.push({city,rooms,rent,sqm,ppm:rent/size,issues,tip,t:Date.now()});
   saveContrib(arr); refreshCount(); e.target.reset();
-  toast('תודה! התרומה שלך נוספה לבסיס הנתונים 🤝');
+  toast('תודה! הידע שלך עכשיו עוזר לשוכרים הבאים 🤝');
 });
 
 /* ---- dark mode ---- */
