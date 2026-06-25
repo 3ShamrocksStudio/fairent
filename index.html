@@ -1,334 +1,501 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he" dir="rtl" data-brand="fairent" data-mode="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0e5f52">
-<title>הוגן · Fairent — האם אתם משלמים יותר מדי על שכר דירה?</title>
-<meta name="description" content="הוגן (Fairent) — כלי עברי-ראשון שנותן לשוכרים בישראל נתונים וכוח מיקוח כדי לשלם שכר דירה הוגן.">
+<meta name="theme-color" content="#310A91">
+<title>Fairent · הוגן — כוח השוכרים. שכר דירה הוגן.</title>
+<meta name="description" content="Fairent (הוגן) — כלי עברי-ראשון שמחזיר את הכוח לשוכרים: בדקו אם שכר הדירה הוגן, קבלו מודיעין קהילתי מאומת על הנכס, ותסריט מיקוח שמוריד מחירים מנופחים.">
 <link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="Brand/Fairent_icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="Brand/favicon-32.png">
+<link rel="apple-touch-icon" href="Brand/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Assistant:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-/* ============================================================================
-   הוגן · FAIRENT — fair-rent checker for Israel  (Hebrew-first · RTL)
-   Single-file PoC · built on the 3Shamrocks Studio token method.
-   Brand world: deep teal-blue (trust/justice) + fair-green (home) + gold (scales).
-   The fairness engine is a TRANSPARENT heuristic over real CBS actual-rent data.
-   © 2026 3Shamrocks Studio.
-   ============================================================================ */
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-/* ---------- LAYER 1: Fairent brand knobs ---------- */
-:root{
-  /* hero hue — deep teal-blue (justice / trust) */
-  --brand-50:#e8f3f4; --brand-100:#c8e2e3; --brand-200:#97c7c9; --brand-300:#5fa6a9;
-  --brand-400:#357f86; --brand-500:#1d6470; --brand-600:#16505d; --brand-700:#143f4b;
-  --brand-800:#12313b; --brand-900:#0e2730; --brand-950:#091a21;
-  /* signature — fair green (the home) */
-  --sig-300:#86d3a0; --sig-400:#5bbf7a; --sig-500:#36a25b; --sig-600:#2a8049; --sig-700:#226a3d;
-  /* gold — the scales accent */
-  --gold-400:#e3bb55; --gold-500:#d4a437; --gold-600:#b6892a;
-
-  --brand-grad:linear-gradient(135deg,#16505d 0%,#143f4b 55%,#1d6470 100%);
-
-  /* neutrals (warm-cool, lightly teal-tinted) */
-  --n-0:#ffffff; --n-25:#f7faf9; --n-50:#eef4f3; --n-100:#e3ecec; --n-200:#d2dedd;
-  --n-300:#b3c3c3;
-  --n-400:#7d949a; --n-500:#5b727a; --n-600:#445860; --n-700:#33444b; --n-800:#243137; --n-900:#172227; --n-950:#0d1518;
-
-  /* semantic — light */
-  --bg:var(--n-25); --bg-2:var(--n-50);
-  --surface:var(--n-0); --sunken:var(--n-50);
-  --ink:var(--n-900); --ink-2:var(--n-600); --ink-3:var(--n-500);
-  --line:var(--n-200); --line-2:var(--n-300);
-  --field:var(--n-0); --field-line:var(--n-300);
-  --accent:var(--brand-600); --accent-hover:var(--brand-700); --accent-soft:var(--brand-50); --accent-ink:var(--brand-700);
-  --on-accent:#ffffff;
-
-  --fair:#1f8f54; --fair-bg:#e3f5e9; --fair-ink:#176b3f;
-  --ok:#2a8049; --ok-bg:#e6f5ec;
-  --warn:#b07706; --warn-bg:#fbf0d6; --warn-ink:#8a5e05;
-  --high:#c4521f; --high-bg:#fbe7dc; --high-ink:#9d3f15;
-  --alert:#cc2f3a; --alert-bg:#fbe1e3; --alert-ink:#a51f29;
-  --info:#1d6470; --info-bg:#e2f0f1;
-
-  --radius:16px; --radius-sm:11px; --radius-lg:24px;
-  --shadow-sm:0 1px 2px rgba(9,26,33,.06),0 1px 3px rgba(9,26,33,.08);
-  --shadow:0 8px 24px rgba(9,26,33,.10),0 2px 6px rgba(9,26,33,.06);
-  --shadow-lg:0 22px 50px rgba(9,26,33,.16),0 6px 14px rgba(9,26,33,.08);
-  --ring:0 0 0 3px color-mix(in srgb,var(--brand-500) 40%,transparent);
-  --maxw:760px;
+<!-- ============================================================================
+     Fairent · הוגן — renter-power fair-rent platform for Israel (Hebrew-first · RTL)
+     Single-file PWA · Inherits the 3Shamrocks Design System v3.0 verbatim:
+       · LAYER 0/2  tokens.css   (primitives + semantic tokens, unmodified)
+       · LAYER 1    [data-brand="fairent"]  — the REAL .ai palette (see BRAND.md)
+       · LAYER 3    components.css (shared .btn/.card/.field/.badge…, unmodified)
+     Mission: shift power BACK to renters — verified truth pushes inflated rents down.
+     Engine: transparent CBS-proxy benchmark + community-verified intel (confirm/deny).
+     © 2026 3Shamrocks Studio. All rights reserved.
+     ========================================================================= -->
+<style id="ds-tokens">
+/* === 3S DESIGN SYSTEM v3.0 — tokens.css (LAYER 0 primitives + LAYER 2 semantic) — UNMODIFIED === */
+:root {
+  --text-xs:.75rem; --text-sm:.875rem; --text-base:1rem; --text-lg:1.125rem;
+  --text-xl:1.25rem; --text-2xl:1.5rem; --text-3xl:1.953rem; --text-4xl:2.441rem;
+  --text-5xl:3.052rem; --text-6xl:3.815rem; --text-7xl:4.768rem;
+  --weight-regular:400; --weight-medium:500; --weight-semibold:600; --weight-bold:700;
+  --leading-tight:1.14; --leading-snug:1.3; --leading-normal:1.55; --leading-relaxed:1.7;
+  --tracking-tight:-.02em; --tracking-normal:0; --tracking-wide:.04em; --tracking-caps:.12em;
+  --space-0:0; --space-1:.25rem; --space-2:.5rem; --space-3:.75rem; --space-4:1rem;
+  --space-5:1.5rem; --space-6:2rem; --space-7:2.5rem; --space-8:3rem; --space-9:4rem; --space-10:6rem;
+  --container:1180px;
 }
-[data-mode="dark"]{
-  --bg:var(--brand-950); --bg-2:var(--brand-900);
-  --surface:#102a32; --sunken:#0c222a;
-  --ink:#eaf4f3; --ink-2:#b7cccc; --ink-3:#8fa9a9;
-  --line:color-mix(in srgb,#5fa6a9 16%,transparent); --line-2:color-mix(in srgb,#5fa6a9 26%,transparent);
-  --field:#0c222a; --field-line:color-mix(in srgb,#5fa6a9 24%,transparent);
-  --accent:var(--brand-300); --accent-hover:var(--sig-300); --accent-soft:color-mix(in srgb,var(--brand-400) 22%,transparent); --accent-ink:var(--brand-200);
-  --on-accent:#06181d;
-
-  --fair:#5bbf7a; --fair-bg:color-mix(in srgb,#36a25b 22%,var(--brand-900)); --fair-ink:#86d3a0;
-  --warn:#e3bb55; --warn-bg:color-mix(in srgb,#d4a437 20%,var(--brand-900)); --warn-ink:#e3bb55;
-  --high:#ef8a5a; --high-bg:color-mix(in srgb,#c4521f 24%,var(--brand-900)); --high-ink:#ef8a5a;
-  --alert:#f17680; --alert-bg:color-mix(in srgb,#cc2f3a 26%,var(--brand-900)); --alert-ink:#f17680;
-  --info:#5fa6a9; --info-bg:color-mix(in srgb,#1d6470 30%,var(--brand-900));
-
-  --shadow-sm:0 1px 2px rgba(0,0,0,.4);
-  --shadow:0 10px 28px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.4);
-  --shadow-lg:0 24px 54px rgba(0,0,0,.6);
+:root, [data-brand] {
+  --n-0:#ffffff;
+  --n-25: color-mix(in srgb, var(--tint) calc(var(--tint-amt) * .35), #f8fafc);
+  --n-50: color-mix(in srgb, var(--tint) calc(var(--tint-amt) * .5),  #f1f4f8);
+  --n-100:color-mix(in srgb, var(--tint) calc(var(--tint-amt) * .7),  #e6eaf0);
+  --n-200:color-mix(in srgb, var(--tint) var(--tint-amt),             #d3d9e2);
+  --n-300:color-mix(in srgb, var(--tint) var(--tint-amt),             #b4bdca);
+  --n-400:color-mix(in srgb, var(--tint) var(--tint-amt),             #8893a4);
+  --n-500:color-mix(in srgb, var(--tint) var(--tint-amt),             #626d7e);
+  --n-600:color-mix(in srgb, var(--tint) var(--tint-amt),             #485160);
+  --n-700:color-mix(in srgb, var(--tint) calc(var(--tint-amt) * 1.4), #333b48);
+  --n-800:color-mix(in srgb, var(--tint) calc(var(--tint-amt) * 1.7), #212732);
+  --n-900:color-mix(in srgb, var(--tint) calc(var(--tint-amt) * 2),   #161b24);
+  --n-950:color-mix(in srgb, var(--tint) calc(var(--tint-amt) * 2.4), #0d111a);
+  --radius-xs:calc(var(--radius-unit) * .45); --radius-sm:var(--radius-unit);
+  --radius-md:calc(var(--radius-unit) * 1.5); --radius-lg:calc(var(--radius-unit) * 2.3);
+  --radius-xl:calc(var(--radius-unit) * 3.4); --radius-2xl:calc(var(--radius-unit) * 4.6); --radius-pill:999px;
+  --dur-fast:calc(120ms * var(--dur-scale)); --dur-base:calc(200ms * var(--dur-scale)); --dur-slow:calc(320ms * var(--dur-scale));
+  --shadow-xs:0 1px 2px rgb(var(--shadow-color) / calc(.06 * var(--shadow-strength)));
+  --shadow-sm:0 1px 3px rgb(var(--shadow-color) / calc(.10 * var(--shadow-strength))), 0 1px 2px rgb(var(--shadow-color) / calc(.06 * var(--shadow-strength)));
+  --shadow-md:0 4px 12px rgb(var(--shadow-color) / calc(.12 * var(--shadow-strength))), 0 2px 4px rgb(var(--shadow-color) / calc(.06 * var(--shadow-strength)));
+  --shadow-lg:0 12px 28px rgb(var(--shadow-color) / calc(.16 * var(--shadow-strength))), 0 4px 8px rgb(var(--shadow-color) / calc(.06 * var(--shadow-strength)));
+  --shadow-xl:0 24px 50px rgb(var(--shadow-color) / calc(.22 * var(--shadow-strength))), 0 8px 16px rgb(var(--shadow-color) / calc(.08 * var(--shadow-strength)));
+  --focus-ring:0 0 0 3px color-mix(in srgb, var(--accent) 45%, transparent);
 }
-
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
-body{
-  background:var(--bg); color:var(--ink);
-  font-family:"Assistant","Heebo",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-  font-size:17px; line-height:1.6; min-height:100vh; -webkit-font-smoothing:antialiased;
-  background-image:radial-gradient(120% 60% at 100% 0%, color-mix(in srgb,var(--brand-500) 7%,transparent) 0%, transparent 60%);
+:root, [data-mode="light"], [data-brand] {
+  color-scheme:light;
+  --bg:var(--n-25); --bg-subtle:var(--n-50);
+  --surface:var(--n-0); --surface-raised:var(--n-0); --surface-sunken:var(--n-50);
+  --overlay:rgb(var(--shadow-color) / .45);
+  --text:var(--n-900); --text-secondary:var(--n-600); --text-muted:var(--n-500);
+  --text-on-accent:var(--brand-contrast); --text-inverse:var(--n-0);
+  --border:var(--n-200); --border-strong:var(--n-300); --border-subtle:var(--n-100);
+  --field-bg:var(--n-0); --field-border:var(--n-300);
+  --accent:var(--brand-600); --accent-hover:var(--brand-700);
+  --accent-soft:var(--brand-50); --accent-text:var(--brand-700);
+  --accent-gradient:var(--brand-gradient);
+  --success:#16a34a; --success-bg:#dcfce7; --success-fg:#15803d;
+  --warning:#f59e0b; --warning-bg:#fef3c7; --warning-fg:#b45309;
+  --danger:#e5484d; --danger-bg:#fee2e2; --danger-fg:#c4373c;
+  --info:#3b82f6; --info-bg:#dbeafe; --info-fg:#2563eb;
+  --safe:var(--success); --safe-bg:var(--success-bg); --safe-fg:var(--success-fg);
+  --caution:var(--warning); --caution-bg:var(--warning-bg); --caution-fg:var(--warning-fg);
 }
-h1,h2,h3,.display{font-family:"Heebo","Assistant",sans-serif; line-height:1.2; letter-spacing:-.01em}
-button{font-family:inherit; cursor:pointer}
-a{color:var(--accent-ink); text-decoration-thickness:.08em; text-underline-offset:2px}
-.wrap{max-width:var(--maxw); margin-inline:auto; padding-inline:20px}
+[data-mode="dark"] {
+  color-scheme:dark;
+  --bg:var(--n-950); --bg-subtle:var(--n-900);
+  --surface:var(--n-850, var(--n-900)); --surface-raised:var(--n-800); --surface-sunken:var(--n-900);
+  --overlay:rgb(4 7 14 / .66);
+  --text:var(--n-50); --text-secondary:var(--n-300);
+  --text-muted:color-mix(in srgb, var(--n-400) 50%, var(--n-300));
+  --text-on-accent:var(--brand-contrast); --text-inverse:var(--n-950);
+  --border:color-mix(in srgb, var(--n-300) 16%, transparent);
+  --border-strong:color-mix(in srgb, var(--n-300) 28%, transparent);
+  --border-subtle:color-mix(in srgb, var(--n-300) 9%, transparent);
+  --field-bg:var(--n-900); --field-border:color-mix(in srgb, var(--n-300) 22%, transparent);
+  --accent:var(--brand-400); --accent-hover:var(--brand-300);
+  --accent-soft:color-mix(in srgb, var(--brand-500) 20%, transparent); --accent-text:var(--brand-300);
+  --accent-gradient:var(--brand-gradient);
+  --success:#34d399; --success-bg:color-mix(in srgb,#16a34a 22%,var(--n-900)); --success-fg:#34d399;
+  --warning:#fbbf24; --warning-bg:color-mix(in srgb,#f59e0b 22%,var(--n-900)); --warning-fg:#fbbf24;
+  --danger:#f87171; --danger-bg:color-mix(in srgb,#e5484d 24%,var(--n-900)); --danger-fg:#f87171;
+  --info:#60a5fa; --info-bg:color-mix(in srgb,#3b82f6 24%,var(--n-900)); --info-fg:#60a5fa;
+  --shadow-color:0 0 0;
+  --shadow-md:0 4px 12px rgb(0 0 0 / .4), 0 2px 4px rgb(0 0 0 / .3);
+  --shadow-lg:0 12px 28px rgb(0 0 0 / .5), 0 4px 8px rgb(0 0 0 / .3);
+  --shadow-xl:0 24px 50px rgb(0 0 0 / .6), 0 8px 16px rgb(0 0 0 / .4);
+}
+@media (prefers-reduced-motion: reduce) { :root { --dur-scale:0.001; } }
+</style>
 
-/* ---------- top bar ---------- */
-.topbar{position:sticky; top:0; z-index:30; backdrop-filter:saturate(1.4) blur(10px);
-  background:color-mix(in srgb,var(--bg) 82%,transparent); border-bottom:1px solid var(--line)}
-.topbar .row{display:flex; align-items:center; gap:12px; padding-block:11px}
-.logo{display:flex; align-items:center; gap:11px; text-decoration:none; color:inherit}
-.logo .mark{width:40px; height:40px; border-radius:11px; object-fit:cover; box-shadow:var(--shadow-sm); background:#fff; flex:none}
-.logo .name{font-family:"Heebo",sans-serif; font-weight:800; font-size:1.28rem; letter-spacing:-.02em}
-.logo .name small{display:block; font-size:.62rem; font-weight:600; letter-spacing:.18em; color:var(--ink-3); margin-top:-2px}
-.spacer{flex:1}
-.icon-btn{width:42px; height:42px; border-radius:11px; border:1px solid var(--line); background:var(--surface);
-  color:var(--ink-2); font-size:1.15rem; display:grid; place-items:center; transition:.18s}
-.icon-btn:hover{border-color:var(--line-2); color:var(--ink)}
-.icon-btn:focus-visible{outline:none; box-shadow:var(--ring)}
+<style id="ds-brand-fairent">
+/* === 3S DESIGN SYSTEM v3.0 — LAYER 1 brand block ===========================
+   FAIRENT™ · הוגן — the REAL .ai palette mapped onto the semantic roles.
+   Source of truth: Brand/Fairent.ai → Fairent_icon.svg / Fairent_icon_logo.svg.
+   4 brand anchors (see BRAND.md): #310A91 deep indigo · #6550FF electric violet
+   · #53D805 signal green · #050511 ink black. No colors invented.
+   ========================================================================= */
+[data-brand="fairent"] {
+  --font-display:"Heebo", system-ui, sans-serif;
+  --font-body:"Assistant", "Heebo", system-ui, sans-serif;
+  --font-hebrew:"Heebo", "Assistant", sans-serif;
+  --font-mono:ui-monospace, "JetBrains Mono", monospace;
+  --display-weight:800;
+  --display-tracking:-.012em;
 
-/* ---------- hero ---------- */
-.hero{padding-block:42px 18px; text-align:center}
-.eyebrow{display:inline-flex; align-items:center; gap:7px; font-weight:700; font-size:.8rem; letter-spacing:.04em;
-  color:var(--accent-ink); background:var(--accent-soft); border:1px solid color-mix(in srgb,var(--brand-400) 28%,transparent);
-  padding:6px 14px; border-radius:999px}
-.hero h1{font-size:clamp(1.9rem,6.4vw,2.85rem); font-weight:800; margin:18px 0 10px}
-.hero h1 .em{background:var(--brand-grad); -webkit-background-clip:text; background-clip:text; color:transparent}
-.hero p.lead{font-size:1.1rem; color:var(--ink-2); max-width:48ch; margin:0 auto 8px}
-.trustline{margin-top:14px; font-size:.86rem; color:var(--ink-3); display:flex; gap:18px; justify-content:center; flex-wrap:wrap}
-.trustline span{display:inline-flex; gap:6px; align-items:center}
+  /* hero hue — justice indigo→electric violet (anchored on the REAL hexes) */
+  --brand-50:#f0edff; --brand-100:#e2dcff; --brand-200:#c7baff; --brand-300:#a896ff;
+  --brand-400:#8872ff; --brand-500:#6550ff; --brand-600:#4b2fd6; --brand-700:#310a91;
+  --brand-800:#270a72; --brand-900:#190a4d; --brand-950:#050511;
+  /* signature — signal green ("the home" / fair) */
+  --signature-400:#74e636; --signature-500:#53d805; --signature-600:#43ad04;
+  --brand-gradient:linear-gradient(135deg,#310a91 0%,#4b2fd6 55%,#6550ff 100%);
+  --brand-contrast:#ffffff;
 
-/* ---------- cards ---------- */
-.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
-  box-shadow:var(--shadow); padding:24px}
-.card.pad-lg{padding:28px}
-section{margin-block:22px}
-.section-title{display:flex; align-items:center; gap:10px; font-size:1.15rem; font-weight:800; margin:0 0 4px}
-.section-sub{color:var(--ink-2); margin:0 0 18px; font-size:.96rem}
-.step-num{width:30px; height:30px; flex:none; border-radius:9px; background:var(--accent-soft); color:var(--accent-ink);
-  display:grid; place-items:center; font-weight:800; font-size:.95rem}
+  --tint:#310a91; --tint-amt:8%;        /* cool indigo-tinted neutrals */
+  --radius-unit:11px;                    /* soft rounded (sm 11 · md 16 · lg 25) */
+  --ease:cubic-bezier(.2,0,0,1); --ease-spring:cubic-bezier(.34,1.4,.5,1);
+  --dur-scale:1.05;                      /* calm, trustworthy */
+  --shadow-color:9 8 33; --shadow-strength:1;
 
-/* ---------- form ---------- */
-.grid{display:grid; gap:14px}
-@media(min-width:560px){ .grid.cols-2{grid-template-columns:1fr 1fr} }
-.field label{display:block; font-weight:700; font-size:.9rem; margin-bottom:6px}
-.field .hint{font-weight:500; color:var(--ink-3); font-size:.8rem}
-.control{width:100%; height:52px; padding:0 14px; font-size:1.02rem; font-family:inherit; color:var(--ink);
-  background:var(--field); border:1.5px solid var(--field-line); border-radius:var(--radius-sm); transition:.16s; appearance:none}
-select.control{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%237d949a' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position:left 14px center; padding-inline-start:14px; padding-inline-end:40px}
-.control:focus{outline:none; border-color:var(--brand-500); box-shadow:var(--ring)}
-.control::placeholder{color:var(--ink-3)}
-.input-money{position:relative}
-.input-money .control{padding-inline-start:42px}
-.input-money .cur{position:absolute; inset-inline-start:14px; top:0; height:52px; display:grid; place-items:center;
-  color:var(--ink-3); font-weight:700; pointer-events:none}
-.btn{height:54px; padding:0 26px; border:none; border-radius:var(--radius-sm); font-size:1.05rem; font-weight:800;
-  font-family:"Heebo",sans-serif; background:var(--accent); color:var(--on-accent); transition:.18s; box-shadow:var(--shadow-sm);
-  display:inline-flex; align-items:center; justify-content:center; gap:9px; width:100%}
-.btn:hover{background:var(--accent-hover); transform:translateY(-1px); box-shadow:var(--shadow)}
-.btn:focus-visible{outline:none; box-shadow:var(--ring)}
-.btn.ghost{background:transparent; color:var(--accent-ink); border:1.5px solid var(--line-2); box-shadow:none}
-.btn.ghost:hover{background:var(--accent-soft); border-color:var(--brand-400)}
-.btn.sm{height:44px; font-size:.92rem; padding:0 18px; width:auto}
+  /* civic fairness scale mapped onto the semantic state roles */
+  --success:#5e8c14; --success-bg:#eef7d9; --success-fg:#4a6f10;   /* "fair" */
+  --warning:#b07706; --warning-bg:#fbf0d6; --warning-fg:#8a5e05;   /* "warn" */
+  --danger:#cc2f3a;  --danger-bg:#fbe1e3; --danger-fg:#a51f29;     /* "alert" */
+  --info:#4b2fd6;    --info-bg:#ecebfb;   --info-fg:#310a91;        /* brand-keyed */
+}
+[data-brand="fairent"][data-mode="dark"] {
+  --tint:#190a4d; --tint-amt:22%;
+  --accent:var(--brand-500); --accent-hover:var(--brand-400);   /* violet for AA on white text */
+  --success:#a8d233; --success-bg:color-mix(in srgb,#5e8c14 30%,var(--n-900)); --success-fg:#bce05a;
+  --warning:#e3bb55; --warning-bg:color-mix(in srgb,#b07706 28%,var(--n-900)); --warning-fg:#e3bb55;
+  --danger:#f1767f;  --danger-bg:color-mix(in srgb,#cc2f3a 30%,var(--n-900)); --danger-fg:#f1767f;
+  --info:#a896ff;    --info-bg:color-mix(in srgb,#4b2fd6 34%,var(--n-900));   --info-fg:#c7baff;
+}
+</style>
 
-/* ---------- result ---------- */
-#result{display:none}
-#result.show{display:block; animation:rise .4s var(--ease,cubic-bezier(.2,0,0,1)) both}
-@keyframes rise{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
-.verdict{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
-.verdict .badge{font-family:"Heebo",sans-serif; font-weight:800; font-size:1.02rem; padding:9px 16px; border-radius:999px; white-space:nowrap}
-.verdict .delta{font-family:"Heebo",sans-serif; font-weight:800; font-size:2.4rem; line-height:1}
-.verdict .delta small{font-size:1rem; font-weight:600; color:var(--ink-2)}
-.b-fair{background:var(--fair-bg); color:var(--fair-ink)}
-.b-warn{background:var(--warn-bg); color:var(--warn-ink)}
-.b-high{background:var(--high-bg); color:var(--high-ink)}
-.b-alert{background:var(--alert-bg); color:var(--alert-ink)}
-.b-info{background:var(--info-bg); color:var(--info)}
+<style id="ds-components">
+/* === 3S DESIGN SYSTEM v3.0 — components.css (LAYER 3 shared patterns) — UNMODIFIED === */
+*, *::before, *::after { box-sizing:border-box; }
+html { -webkit-text-size-adjust:100%; }
+body {
+  margin:0; font-family:var(--font-body); font-size:var(--text-base);
+  line-height:var(--leading-normal); color:var(--text); background:var(--bg);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  transition:background var(--dur-base) var(--ease), color var(--dur-base) var(--ease);
+}
+:focus-visible { outline:none; box-shadow:var(--focus-ring); border-radius:var(--radius-xs); }
+h1,h2,h3,h4 { font-family:var(--font-display); font-weight:var(--display-weight);
+  line-height:var(--leading-tight); letter-spacing:var(--display-tracking); margin:0 0 var(--space-3); color:var(--text); }
+h1 { font-size:var(--text-5xl); } h2 { font-size:var(--text-4xl); }
+h3 { font-size:var(--text-2xl); } h4 { font-size:var(--text-xl); }
+p { margin:0 0 var(--space-4); color:var(--text-secondary); }
+a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+code, pre, kbd { font-family:var(--font-mono); }
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:var(--space-2);
+  font-family:var(--font-body); font-size:var(--text-sm); font-weight:var(--weight-semibold);
+  line-height:1; letter-spacing:.01em; white-space:nowrap; padding:0 var(--space-5); height:44px;
+  border:1.5px solid transparent; border-radius:var(--radius-sm);
+  background:var(--accent); color:var(--text-on-accent); cursor:pointer;
+  transition:transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.btn:hover { background:var(--accent-hover); }
+.btn:active { transform:translateY(1px) scale(.99); }
+.btn:disabled { opacity:.45; cursor:not-allowed; transform:none; }
+.btn svg { width:1.1em; height:1.1em; }
+.btn--secondary { background:transparent; color:var(--accent-text); border-color:var(--accent); }
+.btn--secondary:hover { background:var(--accent-soft); }
+.btn--ghost { background:transparent; color:var(--text); border-color:transparent; }
+.btn--ghost:hover { background:var(--surface-sunken); }
+.btn--danger { background:var(--danger); color:#fff; border-color:transparent; }
+.btn--danger:hover { background:var(--danger-fg); }
+.btn--accent-fill { background:var(--accent-gradient); color:var(--brand-contrast); border-color:transparent; }
+.btn--accent-fill:hover { filter:brightness(1.06); box-shadow:var(--shadow-md); }
+.btn--sm { height:34px; padding:0 var(--space-4); font-size:var(--text-xs); }
+.btn--lg { height:52px; padding:0 var(--space-6); font-size:var(--text-base); }
+.btn--icon { padding:0; width:44px; } .btn--block { display:flex; width:100%; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:var(--space-5); box-shadow:var(--shadow-sm);
+  transition:transform var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease), border-color var(--dur-base) var(--ease); }
+.card--accent { border-top:3px solid var(--accent); }
+.field { display:flex; flex-direction:column; gap:var(--space-2); margin-bottom:var(--space-4); }
+.label { font-size:var(--text-sm); font-weight:var(--weight-medium); color:var(--text); }
+.label .req { color:var(--danger); }
+.input, .textarea, .select { font-family:var(--font-body); font-size:var(--text-base); color:var(--text);
+  background:var(--field-bg); border:1.5px solid var(--field-border); border-radius:var(--radius-sm);
+  padding:0 var(--space-4); height:44px; width:100%;
+  transition:border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease); }
+.textarea { height:auto; min-height:96px; padding:var(--space-3) var(--space-4); resize:vertical; line-height:var(--leading-normal); }
+.input::placeholder, .textarea::placeholder { color:var(--text-muted); }
+.input:focus, .textarea:focus, .select:focus { outline:none; border-color:var(--accent); box-shadow:var(--focus-ring); }
+.input:disabled { background:var(--surface-sunken); cursor:not-allowed; opacity:.6; }
+.field__hint { font-size:var(--text-xs); color:var(--text-muted); }
+.badge { display:inline-flex; align-items:center; gap:6px; font-size:var(--text-xs); font-weight:var(--weight-semibold);
+  line-height:1; padding:5px 10px; border-radius:var(--radius-pill); letter-spacing:.01em; }
+.badge--neutral { background:var(--surface-sunken); color:var(--text-secondary); border:1px solid var(--border); }
+.badge--accent { background:var(--accent-soft); color:var(--accent-text); }
+.badge--success { background:var(--success-bg); color:var(--success-fg); }
+.badge--warning { background:var(--warning-bg); color:var(--warning-fg); }
+.badge--danger { background:var(--danger-bg); color:var(--danger-fg); }
+.badge--info { background:var(--info-bg); color:var(--info-fg); }
+.badge .dot { width:7px; height:7px; border-radius:50%; background:currentColor; }
+.chip { display:inline-flex; align-items:center; gap:var(--space-2); padding:6px 12px; border-radius:var(--radius-pill);
+  background:var(--surface); border:1px solid var(--border); font-size:var(--text-sm); color:var(--text); cursor:pointer; transition:all var(--dur-fast) var(--ease); }
+.chip:hover { border-color:var(--accent); }
+.chip--selected { background:var(--accent); color:var(--text-on-accent); border-color:transparent; }
+.toast { display:flex; align-items:flex-start; gap:var(--space-3); width:360px; max-width:90vw;
+  background:var(--surface-raised); border:1px solid var(--border); border-left:4px solid var(--accent);
+  border-radius:var(--radius-md); padding:var(--space-4); box-shadow:var(--shadow-lg); }
+.list { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; }
+.divider { height:1px; background:var(--border); border:0; margin:var(--space-5) 0; }
+</style>
 
-.gauge{margin:20px 0 6px}
-.gauge .track{position:relative; height:14px; border-radius:999px; overflow:hidden;
-  background:linear-gradient(90deg,#2a8049 0%, #6cae3e 22%, #d4a437 50%, #c4521f 74%, #cc2f3a 100%)}
-[dir=rtl] .gauge .track{background:linear-gradient(270deg,#2a8049 0%, #6cae3e 22%, #d4a437 50%, #c4521f 74%, #cc2f3a 100%)}
-.gauge .pin{position:absolute; top:-7px; width:6px; height:28px; border-radius:6px; background:var(--ink);
-  box-shadow:0 0 0 3px var(--surface); transition:inset-inline-start .6s var(--ease,cubic-bezier(.2,0,0,1))}
-.gauge .scale{display:flex; justify-content:space-between; font-size:.74rem; color:var(--ink-3); margin-top:8px; font-weight:600}
+<style id="app-fairent">
+/* === FAIRENT product layer — token-driven only (no ad-hoc colour) === */
+:root, [data-brand="fairent"] {
+  /* fairness-scale role aliases (used by the verdict gauge + JS inline colours) */
+  --fair:var(--success); --warn:var(--warning);
+  --high:color-mix(in srgb, var(--danger) 60%, var(--warning)); --alert:var(--danger);
+  --high-bg:color-mix(in srgb, var(--danger-bg) 55%, var(--warning-bg));
+  --high-fg:color-mix(in srgb, var(--danger-fg) 60%, var(--warning-fg));
+  --maxw:780px;
+}
+body { background-image:radial-gradient(120% 60% at 100% 0%, color-mix(in srgb,var(--brand-500) 9%,transparent) 0%, transparent 55%); }
+.wrap { max-width:var(--maxw); margin-inline:auto; padding-inline:var(--space-5); }
+.row { display:flex; align-items:center; gap:var(--space-3); }
+.spacer { flex:1; }
+.em-grad { background:var(--brand-gradient); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
 
-.stat-row{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px}
-.stat{background:var(--sunken); border:1px solid var(--line); border-radius:var(--radius-sm); padding:13px 15px}
-.stat .k{font-size:.78rem; color:var(--ink-3); font-weight:600}
-.stat .v{font-family:"Heebo",sans-serif; font-weight:800; font-size:1.32rem; margin-top:2px}
-.stat .v small{font-size:.8rem; font-weight:600; color:var(--ink-2)}
+/* topbar */
+.topbar { position:sticky; top:0; z-index:40; backdrop-filter:saturate(1.4) blur(12px);
+  background:color-mix(in srgb,var(--bg) 84%,transparent); border-bottom:1px solid var(--border); }
+.topbar .row { padding-block:10px; }
+.logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+.logo-chip { background:#fff; border:1px solid var(--border); border-radius:12px; padding:8px 13px;
+  box-shadow:var(--shadow-xs); display:flex; align-items:center; flex:none; }
+.logo-chip img { height:26px; width:auto; display:block; }
+.icon-btn { width:44px; height:44px; border-radius:var(--radius-sm); border:1px solid var(--border);
+  background:var(--surface); color:var(--text-secondary); font-size:1.15rem; display:grid; place-items:center;
+  transition:border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease); cursor:pointer; }
+.icon-btn:hover { border-color:var(--border-strong); color:var(--text); }
+.tag-chip { display:none; }
+@media(min-width:640px){ .tag-chip { display:inline-flex; } }
 
-.comps{margin-top:8px}
-.comp{display:flex; align-items:center; gap:12px; padding:12px 4px; border-bottom:1px dashed var(--line)}
-.comp:last-child{border-bottom:none}
-.comp .dot{width:34px; height:34px; flex:none; border-radius:9px; background:var(--accent-soft); color:var(--accent-ink);
-  display:grid; place-items:center; font-weight:800; font-size:.86rem}
-.comp .meta{flex:1; min-width:0}
-.comp .meta b{font-weight:700}
-.comp .meta .sub{font-size:.82rem; color:var(--ink-3)}
-.comp .price{font-family:"Heebo",sans-serif; font-weight:800; white-space:nowrap}
-.comp .price small{display:block; font-size:.72rem; font-weight:600; color:var(--ink-3); text-align:start}
+/* mission ribbon */
+.mission { background:linear-gradient(120deg,var(--brand-950) 0%,var(--brand-800) 45%,var(--brand-700) 100%);
+  color:#f1f0ff; position:relative; overflow:hidden; }
+.mission::after { content:"⚖"; position:absolute; inset-inline-start:-10px; top:-30px; font-size:170px; opacity:.08; line-height:1; }
+.mission .row { padding-block:13px; position:relative; z-index:1; }
+.mission b { color:var(--signature-400); font-family:var(--font-display); font-weight:800; }
+.mission .txt { font-size:.96rem; font-weight:600; }
+@media(max-width:520px){ .mission .txt { font-size:.86rem; } }
 
-.script{background:var(--sunken); border:1px dashed var(--line-2); border-radius:var(--radius); padding:18px 18px 16px;
-  font-size:1.02rem; line-height:1.75; white-space:pre-wrap}
-.script-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px}
+/* hero */
+.hero { padding-block:44px 16px; text-align:center; }
+.eyebrow { display:inline-flex; align-items:center; gap:7px; font-weight:800; font-size:.8rem; letter-spacing:.02em;
+  color:var(--accent-text); background:var(--accent-soft); border:1px solid color-mix(in srgb,var(--brand-400) 28%,transparent);
+  padding:7px 15px; border-radius:var(--radius-pill); }
+.hero h1 { font-size:clamp(2rem,6.6vw,3rem); font-weight:900; margin:18px 0 12px; }
+.hero p.lead { font-size:1.12rem; color:var(--text-secondary); max-width:50ch; margin:0 auto 8px; }
+.trustline { margin-top:16px; font-size:.86rem; color:var(--text-muted); display:flex; gap:18px; justify-content:center; flex-wrap:wrap; font-weight:600; }
+.trustline span { display:inline-flex; gap:6px; align-items:center; }
 
-.note{display:flex; gap:11px; align-items:flex-start; background:var(--info-bg); border:1px solid color-mix(in srgb,var(--info) 28%,transparent);
-  color:var(--ink-2); border-radius:var(--radius); padding:14px 16px; font-size:.9rem; line-height:1.6}
-.note .i{flex:none; font-size:1.1rem}
-.confidence{display:inline-flex; align-items:center; gap:7px; font-size:.82rem; font-weight:600; color:var(--ink-2)}
-.conf-bars{display:inline-flex; gap:3px}
-.conf-bars i{width:7px; height:13px; border-radius:2px; background:var(--line-2)}
-.conf-bars i.on{background:var(--gold-500)}
+/* sections / cards */
+.card.pad-lg { padding:var(--space-6); }
+section { margin-block:22px; }
+.section-title { display:flex; align-items:center; gap:11px; font-size:1.18rem; font-weight:800; font-family:var(--font-display); margin:0 0 4px; }
+.section-sub { color:var(--text-secondary); margin:0 0 18px; font-size:.96rem; }
+.step-num { width:32px; height:32px; flex:none; border-radius:10px; background:var(--brand-gradient); color:#fff;
+  display:grid; place-items:center; font-weight:800; font-size:1rem; box-shadow:var(--shadow-xs); }
 
-/* ---------- contribute ---------- */
-.contribute{background:linear-gradient(135deg, color-mix(in srgb,var(--sig-500) 12%,var(--surface)), var(--surface));
-  border:1px solid color-mix(in srgb,var(--sig-500) 26%,var(--line))}
-.pill-count{display:inline-flex; align-items:center; gap:7px; background:var(--fair-bg); color:var(--fair-ink);
-  font-weight:700; font-size:.82rem; padding:5px 12px; border-radius:999px}
+/* form */
+.grid { display:grid; gap:14px; }
+@media(min-width:560px){ .grid.cols-2 { grid-template-columns:1fr 1fr; } }
+.field { gap:6px; margin-bottom:0; }
+.field .hint { font-weight:500; color:var(--text-muted); font-size:.8rem; }
+.input, .select { height:52px; font-size:1.02rem; }
+.select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%238893a4' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:left 14px center; padding-inline-end:40px; }
+.input-money { position:relative; }
+.input-money .input { padding-inline-start:42px; }
+.input-money .cur { position:absolute; inset-inline-start:14px; top:0; height:52px; display:grid; place-items:center; color:var(--text-muted); font-weight:700; pointer-events:none; }
+.addr-line { display:flex; align-items:center; gap:8px; font-size:.82rem; color:var(--accent-text); font-weight:700; margin:14px 0 0;
+  background:var(--accent-soft); border:1px dashed color-mix(in srgb,var(--brand-400) 35%,transparent); border-radius:var(--radius-sm); padding:10px 13px; }
 
-/* ---------- how / methodology ---------- */
-.how{display:grid; gap:14px}
-@media(min-width:620px){ .how{grid-template-columns:repeat(3,1fr)} }
-.how .h{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:18px}
-.how .h .n{width:32px; height:32px; border-radius:9px; background:var(--brand-grad); color:#fff; display:grid; place-items:center; font-weight:800; margin-bottom:10px}
-.how .h b{display:block; margin-bottom:4px; font-family:"Heebo",sans-serif}
-.how .h p{margin:0; font-size:.9rem; color:var(--ink-2)}
+/* result */
+#result { display:none; }
+#result.show { display:block; animation:rise .4s var(--ease) both; }
+@keyframes rise { from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none} }
+@media (prefers-reduced-motion: reduce){ #result.show { animation:none; } }
+.verdict { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.verdict .vbadge { font-family:var(--font-display); font-weight:800; font-size:1.02rem; padding:9px 16px; border-radius:var(--radius-pill); white-space:nowrap; }
+.verdict .delta { font-family:var(--font-display); font-weight:900; font-size:2.5rem; line-height:1; }
+.b-fair { background:var(--success-bg); color:var(--success-fg); }
+.b-warn { background:var(--warning-bg); color:var(--warning-fg); }
+.b-high { background:var(--high-bg); color:var(--high-fg); }
+.b-alert { background:var(--danger-bg); color:var(--danger-fg); }
+.b-info { background:var(--info-bg); color:var(--info-fg); }
+.gauge { margin:20px 0 6px; }
+.gauge .track { position:relative; height:14px; border-radius:var(--radius-pill); overflow:hidden;
+  background:linear-gradient(270deg,var(--success) 0%,var(--success) 20%,var(--warning) 50%,var(--high) 74%,var(--danger) 100%); }
+.gauge .pin { position:absolute; top:-7px; width:6px; height:28px; border-radius:6px; background:var(--text); box-shadow:0 0 0 3px var(--surface); transition:inset-inline-start var(--dur-slow) var(--ease); }
+.gauge .scale { display:flex; justify-content:space-between; font-size:.74rem; color:var(--text-muted); margin-top:8px; font-weight:600; }
+.stat-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px; }
+.stat { background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-sm); padding:13px 15px; }
+.stat .k { font-size:.78rem; color:var(--text-muted); font-weight:600; }
+.stat .v { font-family:var(--font-display); font-weight:800; font-size:1.32rem; margin-top:2px; }
+.stat .v small { font-size:.8rem; font-weight:600; color:var(--text-secondary); }
+.comm-impact { display:flex; gap:11px; align-items:flex-start; margin-top:16px; padding:14px 16px; border-radius:var(--radius-md);
+  background:color-mix(in srgb,var(--signature-500) 12%,var(--surface)); border:1px solid color-mix(in srgb,var(--signature-500) 32%,var(--border)); font-size:.92rem; line-height:1.6; }
+.comm-impact .i { flex:none; font-size:1.15rem; }
+.comm-impact b { color:var(--signature-600); }
+[data-mode="dark"] .comm-impact b { color:var(--signature-400); }
+.comps { margin-top:4px; }
+.comp { display:flex; align-items:center; gap:12px; padding:12px 4px; border-bottom:1px dashed var(--border); }
+.comp:last-child { border-bottom:none; }
+.comp .dot2 { width:34px; height:34px; flex:none; border-radius:9px; background:var(--accent-soft); color:var(--accent-text); display:grid; place-items:center; font-weight:800; font-size:.86rem; }
+.comp .meta { flex:1; min-width:0; }
+.comp .meta .sub { font-size:.82rem; color:var(--text-muted); }
+.comp .price { font-family:var(--font-display); font-weight:800; white-space:nowrap; }
+.comp .price small { display:block; font-size:.72rem; font-weight:600; color:var(--text-muted); text-align:start; }
+.script { background:var(--surface-sunken); border:1px dashed var(--border-strong); border-radius:var(--radius-md); padding:18px; font-size:1.02rem; line-height:1.75; white-space:pre-wrap; }
+.script-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.note { display:flex; gap:11px; align-items:flex-start; background:var(--info-bg); border:1px solid color-mix(in srgb,var(--info) 28%,transparent); color:var(--text-secondary); border-radius:var(--radius-md); padding:14px 16px; font-size:.88rem; line-height:1.6; }
+.note .i { flex:none; font-size:1.1rem; }
+.confidence { display:inline-flex; align-items:center; gap:7px; font-size:.82rem; font-weight:600; color:var(--text-secondary); }
+.conf-bars { display:inline-flex; gap:3px; }
+.conf-bars i { width:7px; height:13px; border-radius:2px; background:var(--border-strong); }
+.conf-bars i.on { background:var(--signature-500); }
 
-details.method{background:var(--sunken); border:1px solid var(--line); border-radius:var(--radius); padding:4px 18px; margin-top:14px}
-details.method summary{cursor:pointer; font-weight:700; padding:13px 0; list-style:none; display:flex; align-items:center; gap:8px}
-details.method summary::-webkit-details-marker{display:none}
-details.method summary::after{content:"＋"; margin-inline-start:auto; color:var(--ink-3); font-weight:700}
-details.method[open] summary::after{content:"－"}
-details.method .body{padding-bottom:16px; font-size:.92rem; color:var(--ink-2); line-height:1.7}
-details.method .body ul{margin:8px 0; padding-inline-start:20px}
-details.method .body code{background:var(--bg-2); padding:2px 6px; border-radius:5px; font-size:.85em}
+/* community intel */
+.intel-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
+.intel-addr { font-weight:800; font-family:var(--font-display); }
+.power-score { display:flex; align-items:center; gap:10px; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:12px 15px; margin:12px 0 18px; }
+.power-score .ring { width:46px; height:46px; flex:none; border-radius:50%; display:grid; place-items:center; font-weight:900; font-family:var(--font-display); color:#fff; font-size:1rem; }
+.power-score .lbl b { font-family:var(--font-display); }
+.power-score .lbl span { display:block; font-size:.82rem; color:var(--text-muted); }
+.report { border:1px solid var(--border); border-radius:var(--radius-md); padding:15px 16px; margin-bottom:12px; background:var(--surface); }
+.report .top { display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:9px; }
+.report .who { font-weight:700; font-size:.9rem; }
+.report .who small { color:var(--text-muted); font-weight:500; }
+.report .verified { font-size:.72rem; font-weight:800; padding:3px 9px; border-radius:var(--radius-pill); background:var(--success-bg); color:var(--success-fg); }
+.report .demo { font-size:.7rem; font-weight:800; padding:3px 9px; border-radius:var(--radius-pill); background:var(--warning-bg); color:var(--warning-fg); }
+.report .paid { margin-inline-start:auto; font-family:var(--font-display); font-weight:800; font-size:.96rem; }
+.report .paid small { font-weight:600; color:var(--text-muted); font-size:.74rem; }
+.tags { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:9px; }
+.tag { font-size:.78rem; font-weight:700; padding:5px 11px; border-radius:var(--radius-pill); border:1px solid var(--border-strong); }
+.tag.neg { background:var(--danger-bg); color:var(--danger-fg); border-color:color-mix(in srgb,var(--danger) 35%,transparent); }
+.tag.pos { background:var(--success-bg); color:var(--success-fg); border-color:color-mix(in srgb,var(--success) 35%,transparent); }
+.report .cmt { font-size:.95rem; color:var(--text-secondary); margin-bottom:12px; line-height:1.55; }
+.vote-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.vote { display:inline-flex; align-items:center; gap:7px; height:44px; padding:0 15px; border-radius:var(--radius-pill); font-weight:800; font-size:.9rem;
+  border:1.5px solid var(--border-strong); background:var(--surface); color:var(--text-secondary); transition:transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease); cursor:pointer; }
+.vote:hover { transform:translateY(-1px); }
+.vote.up:hover, .vote.up.on { background:var(--success-bg); border-color:var(--success); color:var(--success-fg); }
+.vote.down:hover, .vote.down.on { background:var(--danger-bg); border-color:var(--danger); color:var(--danger-fg); }
+.vote .n { font-family:var(--font-display); }
+.vote-row .net { margin-inline-start:auto; font-size:.8rem; color:var(--text-muted); font-weight:600; }
+.tagpick { display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+.tagpick button { font-size:.84rem; font-weight:700; padding:9px 13px; min-height:44px; border-radius:var(--radius-pill); border:1.5px solid var(--border-strong); background:var(--surface); color:var(--text-secondary); transition:all var(--dur-fast) var(--ease); cursor:pointer; }
+.tagpick button[aria-pressed=true].neg { background:var(--danger-bg); border-color:var(--danger); color:var(--danger-fg); }
+.tagpick button[aria-pressed=true].pos { background:var(--success-bg); border-color:var(--success); color:var(--success-fg); }
 
-/* ---------- footer ---------- */
-footer{margin-top:40px; border-top:1px solid var(--line); padding-block:26px 40px; text-align:center}
-/* Studio credit — minimal Shomer standard (least focus): tiny logo + small line */
-.studio-credit{display:flex; align-items:center; justify-content:center; gap:9px; padding:16px 16px 8px; direction:ltr; flex-wrap:wrap}
-.studio-credit .sc-badge{display:inline-flex; align-items:center; background:var(--sunken); border:1px solid var(--line); border-radius:7px; padding:4px 8px}
-.studio-credit .sc-badge img{height:15px; width:auto; display:block; opacity:.92}
-.studio-credit .cr{font-size:10.5px; color:var(--ink-3); letter-spacing:.3px; line-height:1.4}
-.studio-credit .cr b{color:var(--ink-2); font-weight:700}
-/* Renter-intel chips + cards */
-.chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
-.chip{display:inline-flex; align-items:center; gap:6px; font-size:.86rem; font-weight:600; color:var(--ink-2); background:var(--sunken); border:1.5px solid var(--line); border-radius:999px; padding:7px 12px; cursor:pointer; user-select:none}
-.chip input{margin:0}
-.chip:has(input:checked){background:var(--accent-soft); border-color:var(--accent); color:var(--accent-ink)}
-.intel-card{margin-top:16px; background:var(--sunken); border:1px solid var(--line); border-radius:14px; padding:14px 16px}
-.intel-head{font-family:'Heebo'; font-weight:700; font-size:1rem; display:flex; align-items:center; gap:8px}
-.intel-n{margin-inline-start:auto; font-size:.74rem; font-weight:700; color:var(--ink-3); background:var(--card); border:1px solid var(--line); padding:2px 9px; border-radius:99px}
-.intel-row{font-size:.9rem; color:var(--ink-2); margin-top:10px; font-weight:600}
-.ichips{display:flex; flex-wrap:wrap; gap:7px; margin-top:7px}
-.ichip{font-size:.8rem; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:4px 10px; color:var(--high-ink); font-weight:700}
-.itip{margin-top:7px; font-size:.86rem; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:10px; padding:9px 12px; line-height:1.5}
-.intel-foot{font-size:.74rem; color:var(--ink-3); margin-top:12px}
-.intel-empty{font-size:.9rem; color:var(--ink-2)} .intel-empty a{color:var(--accent-ink); font-weight:700}
+/* how / methodology */
+.how { display:grid; gap:14px; }
+@media(min-width:620px){ .how { grid-template-columns:repeat(3,1fr); } }
+.how .h { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:18px; }
+.how .h .n { width:34px; height:34px; border-radius:10px; background:var(--brand-gradient); color:#fff; display:grid; place-items:center; font-weight:800; margin-bottom:10px; }
+.how .h b { display:block; margin-bottom:4px; font-family:var(--font-display); }
+.how .h p { margin:0; font-size:.9rem; color:var(--text-secondary); }
+details.method { background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:4px 18px; margin-top:14px; }
+details.method summary { cursor:pointer; font-weight:700; padding:13px 0; list-style:none; display:flex; align-items:center; gap:8px; min-height:44px; }
+details.method summary::-webkit-details-marker { display:none; }
+details.method summary::after { content:"＋"; margin-inline-start:auto; color:var(--text-muted); font-weight:700; }
+details.method[open] summary::after { content:"－"; }
+details.method .body { padding-bottom:16px; font-size:.92rem; color:var(--text-secondary); line-height:1.7; }
+details.method .body ul { margin:8px 0; padding-inline-start:20px; }
+details.method .body code { background:var(--bg-subtle); padding:2px 6px; border-radius:5px; font-size:.85em; }
 
-.toast{position:fixed; inset-block-end:20px; inset-inline:0; margin-inline:auto; width:max-content; max-width:90%;
-  background:var(--n-900); color:#fff; padding:12px 20px; border-radius:999px; font-weight:600; box-shadow:var(--shadow-lg);
-  opacity:0; transform:translateY(10px); transition:.25s; pointer-events:none; z-index:60}
-[data-mode="dark"] .toast{background:#fff; color:var(--brand-950)}
-.toast.show{opacity:1; transform:none}
-.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+/* footer */
+footer { margin-top:44px; border-top:1px solid var(--border); padding-block:28px 44px; text-align:center; }
+.foot-mark { display:flex; width:max-content; max-width:100%; background:#fff; border:1px solid var(--border); border-radius:16px; padding:14px 22px; box-shadow:var(--shadow-xs); margin:0 auto 18px; }
+.foot-mark img { height:40px; max-width:100%; width:auto; display:block; }
+.studio-badge { display:inline-flex; align-items:center; gap:10px; background:#16204a; border-radius:12px; padding:9px 16px; margin-bottom:14px; }
+.studio-badge img { height:15px; width:auto; display:block; opacity:.92; }
+footer .legal { color:var(--text-muted); font-size:.82rem; line-height:1.7; }
+footer .legal b { color:var(--text-secondary); }
+
+/* toast pill (product-specific transient) */
+.toast-pill { position:fixed; inset-block-end:20px; inset-inline:0; margin-inline:auto; width:max-content; max-width:90%;
+  background:var(--n-900); color:var(--n-0); padding:12px 20px; border-radius:var(--radius-pill); font-weight:600; box-shadow:var(--shadow-lg);
+  opacity:0; transform:translateY(10px); transition:opacity var(--dur-base) var(--ease), transform var(--dur-base) var(--ease); pointer-events:none; z-index:60; }
+.toast-pill.show { opacity:1; transform:none; }
 </style>
 </head>
 <body>
 
 <header class="topbar">
   <div class="wrap row">
-    <a class="logo" href="#top">
-      <img class="mark" src="Brand/hogen-primary.jpg" alt="הוגן Fairent">
-      <span class="name">הוגן<small>FAIRENT</small></span>
+    <a class="logo" href="#top" aria-label="Fairent · הוגן — דף הבית" dir="ltr">
+      <span class="logo-chip"><img src="Brand/Fairent_icon_logo.svg" alt="Fairent" width="120" height="26"></span>
     </a>
     <span class="spacer"></span>
+    <span class="badge badge--accent tag-chip">⚖️ כוח השוכרים</span>
     <button class="icon-btn" id="modeBtn" title="מצב כהה / בהיר" aria-label="החלפת מצב תצוגה">🌙</button>
   </div>
 </header>
+
+<!-- MISSION RIBBON (positioning) -->
+<div class="mission">
+  <div class="wrap row">
+    <span class="txt">השוק בנוי לטובת בעלי הדירות. <b>הוגן מחזיר את הכוח לשוכרים</b> — אנחנו מצליבים נתונים ומודיעין אמיתי כדי לדחוף מחירים מנופחים כלפי מטה.</span>
+  </div>
+</div>
 
 <a id="top"></a>
 <main>
 
   <!-- HERO -->
   <div class="wrap hero">
-    <span class="eyebrow">⚖️ שוכרים? דעו את כוחכם</span>
-    <h1>האם אתם משלמים <span class="em">יותר מדי</span><br>על שכר הדירה?</h1>
-    <p class="lead">הזינו את הכתובת ואת שכר הדירה המבוקש — ותוך שניות תדעו אם הוא הוגן ביחס לשוק, תקבלו דירות להשוואה ותסריט מיקוח מוכן לשליחה.</p>
+    <span class="eyebrow">⚖️ על-ידי שוכרים, למען שוכרים</span>
+    <h1>האם אתם משלמים <span class="em-grad">יותר מדי</span><br>על שכר הדירה?</h1>
+    <p class="lead">הזינו את הכתובת המדויקת ואת שכר הדירה המבוקש. תוך שניות תדעו אם הוא הוגן, תראו מודיעין קהילתי מאומת על הנכס עצמו, ותקבלו תסריט מיקוח שמוריד מחירים.</p>
     <div class="trustline">
       <span>🔒 אנונימי לגמרי</span>
-      <span>🇮🇱 עברית · נתוני ישראל</span>
-      <span>💬 ללא עלות</span>
+      <span>🇮🇱 נתוני ישראל אמיתיים</span>
+      <span>🤝 מאומת בידי הקהילה</span>
     </div>
   </div>
 
   <!-- CHECKER -->
   <section class="wrap" id="checker">
-    <div class="card pad-lg">
-      <div class="section-title"><span class="step-num">1</span> בדקו את הדירה שלכם</div>
-      <p class="section-sub">ככל שתזינו יותר פרטים, ההערכה תהיה מדויקת יותר. שדות עם <b>*</b> הם חובה.</p>
+    <div class="card pad-lg card--accent">
+      <div class="section-title"><span class="step-num">1</span> בדקו נכס לפי כתובת מדויקת</div>
+      <p class="section-sub">ככל שהכתובת מדויקת יותר — עיר, שכונה, רחוב ומספר בית — כך המידע מדויק ושימושי יותר. <b>נתונים טובים יותר = כוח רב יותר לשוכרים.</b></p>
 
       <form id="checkForm" novalidate>
         <div class="grid cols-2">
           <div class="field">
-            <label for="city">עיר *</label>
-            <select id="city" class="control" required>
-              <option value="" disabled selected>בחרו עיר…</option>
-            </select>
+            <label class="label" for="city">עיר <span class="req">*</span></label>
+            <select id="city" class="select" required><option value="" disabled selected>בחרו עיר…</option></select>
           </div>
           <div class="field">
-            <label for="hood">שכונה / אזור <span class="hint">(לא חובה)</span></label>
-            <input id="hood" class="control" type="text" placeholder="לדוגמה: פלורנטין, רמת אביב…" autocomplete="off">
+            <label class="label" for="hood">שכונה / אזור</label>
+            <input id="hood" class="input" type="text" placeholder="לדוגמה: פלורנטין" autocomplete="off">
           </div>
           <div class="field">
-            <label for="rooms">מספר חדרים *</label>
-            <select id="rooms" class="control" required>
+            <label class="label" for="street">רחוב</label>
+            <input id="street" class="input" type="text" placeholder="לדוגמה: דיזנגוף" autocomplete="off">
+          </div>
+          <div class="field">
+            <label class="label" for="num">מספר בית</label>
+            <input id="num" class="input" type="text" inputmode="numeric" placeholder="לדוגמה: 99" autocomplete="off">
+          </div>
+          <div class="field">
+            <label class="label" for="rooms">מספר חדרים <span class="req">*</span></label>
+            <select id="rooms" class="select" required>
               <option value="" disabled selected>בחרו…</option>
-              <option value="1">1</option><option value="1.5">1.5</option>
-              <option value="2">2</option><option value="2.5">2.5</option>
-              <option value="3" selected>3</option><option value="3.5">3.5</option>
-              <option value="4">4</option><option value="4.5">4.5</option>
+              <option value="1">1</option><option value="1.5">1.5</option><option value="2">2</option><option value="2.5">2.5</option>
+              <option value="3" selected>3</option><option value="3.5">3.5</option><option value="4">4</option><option value="4.5">4.5</option>
               <option value="5">5</option><option value="5.5">5+</option>
             </select>
           </div>
           <div class="field">
-            <label for="sqm">שטח במ״ר <span class="hint">(לא חובה — משפר דיוק)</span></label>
-            <input id="sqm" class="control" type="number" inputmode="numeric" min="10" max="400" placeholder="לדוגמה: 75">
+            <label class="label" for="sqm">שטח במ״ר <span class="hint">(לא חובה)</span></label>
+            <input id="sqm" class="input" type="number" inputmode="numeric" min="10" max="400" placeholder="לדוגמה: 75">
           </div>
         </div>
         <div class="field" style="margin-top:14px">
-          <label for="rent">שכר הדירה המבוקש (לחודש) *</label>
-          <div class="input-money">
-            <span class="cur">₪</span>
-            <input id="rent" class="control" type="number" inputmode="numeric" min="500" max="100000" placeholder="לדוגמה: 6,200" required>
-          </div>
+          <label class="label" for="rent">שכר הדירה המבוקש (לחודש) <span class="req">*</span></label>
+          <div class="input-money"><span class="cur">₪</span>
+            <input id="rent" class="input" type="number" inputmode="numeric" min="500" max="100000" placeholder="לדוגמה: 6,200" required></div>
         </div>
-        <div style="margin-top:20px">
-          <button class="btn" type="submit">בדקו אם המחיר הוגן ⚖️</button>
+        <div class="addr-line" id="addrPreview" style="display:none">📍 <span></span></div>
+        <div style="margin-top:20px; display:flex; gap:12px; flex-wrap:wrap">
+          <button class="btn btn--lg" type="submit" style="flex:1; min-width:200px">בדקו אם המחיר הוגן ⚖️</button>
+          <button class="btn btn--secondary btn--lg" type="button" id="demoBtn">נסו דוגמה חיה</button>
         </div>
       </form>
     </div>
@@ -337,403 +504,392 @@ footer{margin-top:40px; border-top:1px solid var(--line); padding-block:26px 40p
     <div class="card pad-lg" id="result" style="margin-top:18px" aria-live="polite">
       <div class="section-title"><span class="step-num">2</span> ההערכה שלכם</div>
       <p class="section-sub" id="resProfile"></p>
-
       <div class="verdict">
-        <span class="badge" id="resBadge"></span>
-        <div>
-          <div class="delta" id="resDelta"></div>
-          <div style="font-size:.9rem; color:var(--ink-2)" id="resDeltaSub"></div>
-        </div>
+        <span class="vbadge" id="resBadge"></span>
+        <div><div class="delta" id="resDelta"></div><div style="font-size:.9rem; color:var(--text-secondary)" id="resDeltaSub"></div></div>
       </div>
-
-      <div class="gauge">
-        <div class="track"><div class="pin" id="resPin" style="inset-inline-start:50%"></div></div>
-        <div class="scale"><span>מתחת לשוק</span><span>הוגן</span><span>גבוה</span><span>גבוה מאוד</span></div>
-      </div>
-
+      <div class="gauge"><div class="track"><div class="pin" id="resPin" style="inset-inline-start:50%"></div></div>
+        <div class="scale"><span>מתחת לשוק</span><span>הוגן</span><span>גבוה</span><span>גבוה מאוד</span></div></div>
       <div class="stat-row">
-        <div class="stat"><div class="k">מחיר הוגן מוערך לפרופיל זה</div><div class="v" id="resFair"></div></div>
+        <div class="stat"><div class="k">מחיר הוגן מוערך לנכס זה</div><div class="v" id="resFair"></div></div>
         <div class="stat"><div class="k">טווח שוק סביר</div><div class="v" id="resRange"></div></div>
       </div>
+      <div class="comm-impact" id="resComm" style="display:none"><span class="i">🤝</span><span id="resCommTxt"></span></div>
 
       <h3 style="margin:24px 0 2px; font-size:1.05rem">דירות דומות באזור</h3>
-      <p style="margin:0 0 6px; font-size:.82rem; color:var(--ink-3)">דוגמאות מודלות סביב מחיר השוק לפרופיל זה (PoC).</p>
+      <p style="margin:0 0 6px; font-size:.82rem; color:var(--text-muted)">דוגמאות מודלות סביב מחיר השוק לפרופיל זה (PoC).</p>
       <div class="comps" id="resComps"></div>
 
-      <h3 style="margin:24px 0 8px; font-size:1.05rem">תסריט מיקוח מוכן</h3>
+      <h3 style="margin:24px 0 8px; font-size:1.05rem">תסריט מיקוח מוכן לשליחה</h3>
       <div class="script">
         <div class="script-head">
-          <span class="confidence">רמת ביטחון בנתונים:
-            <span class="conf-bars" id="resConf"><i></i><i></i><i></i><i></i><i></i></span>
-          </span>
-          <button class="btn ghost sm" id="copyBtn" type="button">📋 העתקה</button>
+          <span class="confidence">רמת ביטחון בנתונים: <span class="conf-bars" id="resConf"><i></i><i></i><i></i><i></i><i></i></span></span>
+          <button class="btn btn--secondary btn--sm" id="copyBtn" type="button">📋 העתקה</button>
         </div>
         <div id="resScript"></div>
       </div>
-
-      <div class="note" style="margin-top:16px">
-        <span class="i">ℹ️</span>
-        <span id="resSource"></span>
-      </div>
-
-      <div class="intel-card" id="resIntel"></div>
+      <div class="note" style="margin-top:16px"><span class="i">ℹ️</span><span id="resSource"></span></div>
     </div>
   </section>
 
-  <!-- CONTRIBUTE -->
-  <section class="wrap" id="contribute">
-    <div class="card pad-lg contribute">
-      <div class="section-title">🤝 עזרו לשוכרים הבאים</div>
-      <p class="section-sub">בישראל אין מרשם שכירות ציבורי. כל שוכר ששולח <b>כמה הוא באמת משלם</b> (אנונימית) מחזק את בסיס הנתונים — וההערכות נעשות מדויקות יותר לכולם.</p>
-      <p class="pill-count" id="contribCount">📈 0 תרומות נאספו עד כה</p>
-      <form id="contribForm" style="margin-top:16px">
-        <div class="grid cols-2">
-          <div class="field">
-            <label for="cCity">עיר</label>
-            <select id="cCity" class="control" required><option value="" disabled selected>בחרו עיר…</option></select>
+  <!-- COMMUNITY INTEL -->
+  <section class="wrap" id="community" style="display:none">
+    <div class="card pad-lg">
+      <div class="intel-head">
+        <div class="section-title" style="margin:0">🛡️ מודיעין קהילתי על הנכס</div>
+      </div>
+      <p class="section-sub" style="margin-top:8px">שוכרים אמיתיים מדווחים מה הם שילמו ומה הם חוו. <b>אשרו או הפריכו</b> כל דיווח — האימות הקהילתי מזיז את "ציון ההוגנות" של הנכס מנקודת מבט השוכר.</p>
+      <div class="intel-addr" id="intelAddr" style="margin-bottom:6px"></div>
+      <div class="power-score" id="powerScore">
+        <div class="ring" id="psRing">—</div>
+        <div class="lbl"><b id="psLabel">ציון כוח-שוכר לנכס</b><span id="psSub"></span></div>
+      </div>
+      <div id="reportList"></div>
+
+      <details class="method" id="addReportWrap" style="margin-top:18px">
+        <summary>➕ הוסיפו דיווח על הנכס הזה (אנונימי)</summary>
+        <div class="body">
+          <div class="field" style="margin-bottom:12px">
+            <label class="label" for="rPaid">כמה שילמתם בפועל (₪/חודש)</label>
+            <div class="input-money"><span class="cur">₪</span><input id="rPaid" class="input" type="number" inputmode="numeric" placeholder="לדוגמה: 5,400"></div>
           </div>
-          <div class="field">
-            <label for="cRooms">חדרים</label>
-            <select id="cRooms" class="control" required>
-              <option value="" disabled selected>בחרו…</option>
-              <option>1</option><option>1.5</option><option>2</option><option>2.5</option>
-              <option>3</option><option>3.5</option><option>4</option><option>4.5</option><option>5</option>
-            </select>
+          <label class="label">מה חוויתם בנכס?</label>
+          <div class="tagpick" id="tagPick"></div>
+          <div class="field" style="margin-top:12px">
+            <label class="label" for="rCmt">הערה חופשית <span class="hint">(לא חובה)</span></label>
+            <input id="rCmt" class="input" type="text" maxlength="160" placeholder="לדוגמה: בעל הבית הסכים לרדת ₪400 אחרי מו״מ">
           </div>
-          <div class="field">
-            <label for="cRent">כמה אתם משלמים בפועל (₪/חודש)</label>
-            <div class="input-money"><span class="cur">₪</span>
-              <input id="cRent" class="control" type="number" inputmode="numeric" min="500" placeholder="לדוגמה: 5,400" required></div>
-          </div>
-          <div class="field">
-            <label for="cSqm">שטח במ״ר <span class="hint">(לא חובה)</span></label>
-            <input id="cSqm" class="control" type="number" inputmode="numeric" placeholder="לדוגמה: 68">
-          </div>
+          <button class="btn btn--block" type="button" id="addReportBtn" style="margin-top:16px">פרסמו דיווח אנונימי 🔒</button>
         </div>
-        <div class="field" style="margin-top:16px">
-          <label>מה כדאי שדיירים הבאים יידעו? <span class="hint">(בחרו כל מה שרלוונטי — אנונימי)</span></label>
-          <div class="chips" id="cIssues">
-            <label class="chip"><input type="checkbox" value="רעש משכנים">רעש משכנים</label>
-            <label class="chip"><input type="checkbox" value="בעיות אינסטלציה">בעיות אינסטלציה</label>
-            <label class="chip"><input type="checkbox" value="ליקויי תחזוקה">ליקויי תחזוקה</label>
-            <label class="chip"><input type="checkbox" value="אין חניה">אין חניה</label>
-            <label class="chip"><input type="checkbox" value="רטיבות/עובש">רטיבות/עובש</label>
-            <label class="chip"><input type="checkbox" value="מעלית">בעיית מעלית</label>
-            <label class="chip"><input type="checkbox" value="חימום/מיזוג">חימום/מיזוג</label>
-            <label class="chip"><input type="checkbox" value="מזיקים">מזיקים</label>
-            <label class="chip"><input type="checkbox" value="שכונה בעייתית">שכונה בעייתית</label>
-          </div>
-        </div>
-        <div class="field" style="margin-top:14px">
-          <label for="cTip">טיפ על המשכיר / הבניין <span class="hint">(לא חובה — אנונימי)</span></label>
-          <textarea id="cTip" class="control" rows="2" maxlength="240" placeholder="לדוגמה: המשכיר מחזיר פיקדון מהר והוגן · אינסטלציה ישנה · קשה למצוא חניה בערב"></textarea>
-        </div>
-        <div style="margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; align-items:center">
-          <button class="btn" type="submit" style="width:auto">שליחה אנונימית 🔒</button>
-          <span style="font-size:.82rem; color:var(--ink-3)">לא נאסף שם, טלפון או כתובת מדויקת.</span>
-        </div>
-      </form>
+      </details>
     </div>
   </section>
 
   <!-- HOW IT WORKS -->
   <section class="wrap" id="how">
-    <h2 class="section-title" style="font-size:1.3rem">איך זה עובד</h2>
+    <h2 class="section-title" style="font-size:1.32rem">איך הוגן מחזיר לכם את הכוח</h2>
     <div class="how">
-      <div class="h"><div class="n">1</div><b>מזינים פרטים</b><p>עיר, חדרים, גודל ושכר הדירה המבוקש — ללא הרשמה.</p></div>
-      <div class="h"><div class="n">2</div><b>מחשבים הוגנות</b><p>משווים לבסיס נתוני שוק שקוף ומחזירים אחוז סטייה מהמחיר ההוגן.</p></div>
-      <div class="h"><div class="n">3</div><b>מתמקחים בביטחון</b><p>מקבלים דירות להשוואה ותסריט מבוסס-נתונים לשליחה לבעל הבית.</p></div>
+      <div class="h"><div class="n">1</div><b>כתובת מדויקת</b><p>עיר, שכונה, רחוב ומספר בית — מידע ברמת הנכס, לא רק העיר.</p></div>
+      <div class="h"><div class="n">2</div><b>אימות קהילתי</b><p>שוכרים מאשרים או מפריכים דיווחים. אמת מאומתת חזקה משמועה.</p></div>
+      <div class="h"><div class="n">3</div><b>מיקוח עם נתונים</b><p>נכנסים למו״מ עם מחיר שוק, דירות להשוואה ותסריט — ומורידים את המחיר.</p></div>
     </div>
-
     <details class="method">
-      <summary>🔬 שקיפות מלאה: מאיפה הנתונים ואיך מחושבת ההוגנות</summary>
+      <summary>🔬 שקיפות מלאה: הנתונים, חישוב ההוגנות ואיך הקהילה מזיזה אותו</summary>
       <div class="body">
-        <p>אנחנו מאמינים שאסור לבקש מכם לסמוך עלינו בעיניים עצומות. הנה בדיוק מה שקורה מאחורי הקלעים בגרסת ה-PoC הזו:</p>
+        <p>לא מבקשים מכם לסמוך עלינו בעיניים עצומות. הנה בדיוק מה שקורה (גרסת PoC):</p>
         <ul>
-          <li><b>בסיס הנתונים</b> — שכר הדירה הממוצע ב<b>פועל</b> מנתוני <a href="https://www.cbs.gov.il/he/publications/Madad/DocLib/2025/price09a/a4_9_e.pdf" target="_blank" rel="noopener">הלשכה המרכזית לסטטיסטיקה (לוח 4.9)</a>, לפי <b>עיר × מספר חדרים</b>, רבעון 2 2025. אלו נתונים אמיתיים מסקר שכר הדירה — לא מחירי בקשה מאתרי מודעות. לערים שאין להן פירוט עירוני, נעשה שימוש בממוצע <b>המחוז</b> (ומסומן ככזה).</li>
-          <li><b>תיקון לשוכר חדש</b> — הלמ״ס מתעדת ששוכרים חדשים משלמים מעט יותר מחידושי חוזה (~1.6 נק׳ אחוז בשנה); אנו מציגים זאת כדי לא להמעיט בהערכה.</li>
-          <li><b>תרומות שוכרים</b> — מה שאתם והקהילה שולחים נשמר מקומית במכשיר (PoC) ומשוקלל לתוך ההערכה לעיר שלכם, ומעלה את רמת הביטחון. בגרסת ייצור — שרת מאונן (k-אנונימיות, ≥5 דיווחים לתא).</li>
-          <li><b>חישוב ההוגנות</b> — בסיס = שכר הדירה הממוצע של הלמ״ס לעיר × חדרים (כוונון עדין לפי שטח אם הוזן). מציגים <b>טווח הוגן</b> (≈ ‎−10% עד +7% סביב הממוצע) ולא נקודה בודדת. הסטייה = <code>(מבוקש − ממוצע) ÷ ממוצע</code>.</li>
-          <li><b>הסיווג</b> — עד ‎±7% נחשב הוגן · 7%–18% מעט גבוה · 18%–35% גבוה · מעל 35% גבוה משמעותית.</li>
+          <li><b>בסיס נתונים</b> — ערכי שוק (₪ למ״ר לפי עיר) בסדרי גודל ציבוריים (הלמ״ס). ערכי <i>seed</i> להמחשה; בגרסה מלאה ייכנס פיד רשמי של הלמ״ס לפי עיר × מספר חדרים.</li>
+          <li><b>חישוב בסיס</b> — מחיר הוגן ≈ <code>שטח × ₪ למ״ר</code>; הסטייה = <code>(מבוקש − הוגן) ÷ הוגן</code>.</li>
+          <li><b>מודיעין קהילתי</b> — דיווחי שוכרים (שכר ששולם בפועל + תיוגי חוויה) משוקללים לפי <b>מאזן האישורים וההפרכות</b>: דיווח מאומת מקבל משקל, דיווח מופרך מאבד אותו.</li>
+          <li><b>איך זה מזיז את הציון</b> — מטרדים מאומתים (רעש, תחזוקה לקויה, עלויות נסתרות, מחיר מנופח) מורידים את השווי ההוגן של הנכס לשוכר; חוויות חיוביות מאומתות מעלות אותו מעט. כך הפער מול המבוקש משתנה.</li>
         </ul>
-        <p>זו הערכה לכוח מיקוח — לא ייעוץ משפטי או שמאות מוסמכת.</p>
+        <p><b>ללא ביקורות מפוברקות.</b> דיווחי דוגמה מסומנים במפורש כ"לדוגמה". זו הערכת מיקוח — לא שמאות מוסמכת או ייעוץ משפטי.</p>
       </div>
     </details>
   </section>
 
-  <footer class="studio-credit">
-    <span class="sc-badge"><img src="3shamrocks.png" alt="3Shamrocks Studio" width="100" height="15"></span>
-    <span class="cr">© 2026 <b>3Shamrocks Studio</b> · All rights reserved.</span>
+  <footer>
+    <div class="wrap">
+      <div class="foot-mark"><img src="Brand/Fairent_icon_logo.svg" alt="Fairent · הוגן" height="40"></div>
+      <div class="studio-badge"><img src="3shamrocks.png" alt="3Shamrocks Studio"></div>
+      <div class="legal">
+        <b>Fairent™ · הוגן</b> — כוח השוכרים. שכר דירה הוגן. · מוצר של 3Shamrocks Studio · גרסת הדגמה (PoC)<br>
+        © 2026 3Shamrocks Studio. All rights reserved.
+      </div>
+    </div>
   </footer>
 </main>
 
-<div class="toast" id="toast"></div>
+<div class="toast-pill" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* ============================================================================
-   FAIRENT engine — transparent heuristic over REAL CBS actual-rent data.
-   Data: CBS Table 4.9, average monthly rent (NIS) by city × room-band, Q2 2025.
-   Verified against the primary CBS PDF; see DATA-STRATEGY.md. ₪ figures below
-   are paid-rent from the CBS Rent Survey, NOT asking prices or proxies.
+   Fairent engine — CBS-proxy benchmark + community-verified intel.
+   ⚠️ SEED DATA: ₪/m²/month are realistic order-of-magnitude proxies for a PoC,
+   to be replaced by an official CBS city×room-band feed (see DATA-STRATEGY.md).
+   No fabricated reviews: demo reports are explicitly flagged "לדוגמה".
    ============================================================================ */
 const NIS = n => '₪' + Math.round(n).toLocaleString('he-IL');
-
-/* ---- Renter intel: anonymous community knowledge per city (from contributions) ---- */
-const ISSUE_TAGS = ['רעש משכנים','בעיות אינסטלציה','ליקויי תחזוקה','אין חניה','רטיבות/עובש','מעלית','חימום/מיזוג','מזיקים','שכונה בעייתית'];
-const esc = s => String(s).replace(/[<>&"]/g, m => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[m]));
-function cityIntel(city){
-  const all = loadContrib().filter(c => c.city === city);
-  const counts = {}; const tips = []; let rentSum = 0, rentN = 0;
-  all.forEach(c => {
-    if (c.rent > 0) { rentSum += c.rent; rentN++; }
-    (c.issues || []).forEach(i => counts[i] = (counts[i] || 0) + 1);
-    if (c.tip) tips.push(c.tip);
-  });
-  return { n: all.length, avgRent: rentN ? Math.round(rentSum / rentN) : 0, rentN, counts, tips };
-}
-function renderIntel(city){
-  const el = document.getElementById('resIntel'); if (!el) return;
-  const it = cityIntel(city);
-  if (it.n === 0){
-    el.innerHTML = `<div class="intel-empty">🏘️ עדיין אין מודיעין דיירים על ${esc(city)}. <a href="#contribute">היו הראשונים לשתף ידע →</a></div>`;
-    return;
-  }
-  const issueChips = ISSUE_TAGS.filter(t => it.counts[t]).map(t => `<span class="ichip">${esc(t)} · ${it.counts[t]}</span>`).join('');
-  const tipsHtml = it.tips.slice(0, 3).map(t => `<div class="itip">“${esc(t)}”</div>`).join('');
-  el.innerHTML =
-    `<div class="intel-head">🏘️ מודיעין דיירים על ${esc(city)} <span class="intel-n">${it.n} דיווחים</span></div>` +
-    (it.avgRent ? `<div class="intel-row">שכר ששולם בפועל (דיווחי קהילה): <b>${NIS(it.avgRent)}</b> <span style="color:var(--ink-3);font-weight:600">(${it.rentN} דיווחים)</span></div>` : '') +
-    (issueChips ? `<div class="intel-row">מה דיירים מדווחים על האזור/הבניין:</div><div class="ichips">${issueChips}</div>` : '') +
-    (tipsHtml ? `<div class="intel-row">טיפים מהקהילה:</div>${tipsHtml}` : '') +
-    `<div class="intel-foot">ידע = כוח מיקוח 💪 · דיווחים אנונימיים מקהילת השוכרים (PoC — נשמר מקומית; בייצור: שרת k-אנונימי).</div>`;
-}
-
-/* ============================================================================
-   CBS actual-rent data — Central Bureau of Statistics, Table 4.9
-   "Average Monthly Prices of Rent (NIS), by district, big cities & size group".
-   ACTUAL paid rent (CBS Rent Survey), period: Q2 2025 (Apr–Jun). ₪/month.
-   Source: https://www.cbs.gov.il/he/publications/Madad/DocLib/2025/price09a/a4_9_e.pdf
-   Per row: [1–2 rooms, 2.5–3, 3.5–4, 4.5–6, overall]. null = CBS-suppressed cell.
-   ============================================================================ */
-const CBS_PERIOD = "רבעון 2 2025 (אפר׳–יוני)";
-const CBS_SRC    = "הלשכה המרכזית לסטטיסטיקה — לוח 4.9, שכר דירה ממוצע בפועל";
-const CBS_URL    = "https://www.cbs.gov.il/he/publications/Madad/DocLib/2025/price09a/a4_9_e.pdf";
-
-const CBS_CITY = {
-  "תל אביב–יפו":[5363.9,6976.3,8671.3,10953.0,7154.8],
-  "ירושלים":    [3776.8,4687.1,5941.1,7574.5,5135.2],
-  "חיפה":       [2427.9,3048.8,3902.0,5301.4,3278.9],
-  "באר שבע":    [2262.2,2714.6,3326.0,4575.2,2993.1],
-  "רמת גן":     [4121.1,5304.8,6558.8,8172.7,5669.2],
-  "הרצליה":     [4586.3,5331.9,6856.6,8890.5,6414.9],
-  "ראשון לציון":[3586.6,4473.4,5397.1,7057.0,5002.4],
-  "פתח תקווה":  [3360.0,4071.0,5116.7,6815.0,4872.8],
-  "נתניה":      [3097.2,3950.7,5119.8,6222.7,4547.3],
-  "חולון":      [3532.9,4183.2,5314.8,6838.3,4778.2],
-  "בת ים":      [3494.3,4017.2,5230.7,6750.0,4239.4],
-  "רחובות":     [3108.3,3964.2,4880.0,6203.7,4639.1],
-  "אשדוד":      [3036.7,3830.3,4779.5,6025.0,4282.6],
-  "אשקלון":     [2627.8,3185.7,3959.7,4675.4,3540.2],
-  "חדרה":       [2647.9,3299.5,4211.8,5024.8,3819.4],
-  "בני ברק":    [3205.5,4032.1,5023.2,6129.7,4286.3],
-  "כפר סבא":    [null,  4590.8,5850.3,7277.2,5763.4],
-  "בית שמש":    [null,  3888.7,4505.3,5972.2,4353.3]
+const CITY = {
+  "תל אביב–יפו":95,"רמת גן":76,"גבעתיים":80,"הרצליה":82,"רמת השרון":84,
+  "ירושלים":62,"חיפה":47,"באר שבע":37,"נתניה":57,"ראשון לציון":62,
+  "פתח תקווה":60,"חולון":58,"בת ים":58,"אשדוד":48,"אשקלון":42,
+  "רחובות":58,"כפר סבא":63,"רעננה":69,"מודיעין":58,"נהריה":36,
+  "אילת":52,"בית שמש":46,"באר יעקב":52,"יבנה":50,"אחר / עיר אחרת":50
 };
-const CBS_DISTRICT = {
-  "מחוז ירושלים":[3736.5,4579.9,5776.4,7259.5,5056.4],
-  "מחוז הצפון":  [2260.8,2667.1,3389.3,4660.7,3119.7],
-  "מחוז חיפה":   [2442.6,3089.3,3927.8,5452.2,3544.6],
-  "מחוז המרכז":  [3352.9,4231.2,5398.6,7108.5,5162.5],
-  "מחוז תל אביב":[4717.8,5752.0,7016.2,9121.2,6154.0],
-  "מחוז הדרום":  [2515.9,3111.4,3876.9,4896.4,3499.5]
-};
-const CBS_NAT = [3724.8,4349.5,5320.3,6860.9,4878.7]; // national, Q2 2025
-// towns CBS does not break out individually → fall back to their district
-const CITY_TO_DISTRICT = {
-  "גבעתיים":"מחוז תל אביב","רמת השרון":"מחוז תל אביב",
-  "רעננה":"מחוז המרכז","מודיעין":"מחוז המרכז","באר יעקב":"מחוז המרכז","יבנה":"מחוז המרכז",
-  "כפר סבא":"מחוז המרכז","בית שמש":"מחוז ירושלים",          // used only for CBS-suppressed bands
-  "נהריה":"מחוז הצפון","אילת":"מחוז הדרום"
-};
-// CBS-documented new-lease premium: new tenants +4.6% y/y vs renewals +3.0% (release 017/2026) ≈ +1.6pp
-const NEW_LEASE_NOTE = "שוכרים חדשים משלמים מעט יותר מחידושי חוזה (פער של ~1.6 נק׳ אחוז בשנה, לפי הלמ״ס).";
-
-// rooms -> typical apartment m² (for the optional size fine-tune & comparables)
 const ROOM_SQM = {1:34,1.5:42,2:50,2.5:58,3:68,3.5:78,4:90,4.5:102,5:115,5.5:130};
-const BAND_LABEL = ["1–2 חד׳","2.5–3 חד׳","3.5–4 חד׳","4.5+ חד׳"];
 const HOODS = ["מרכז העיר","שכונה ותיקה","אזור מתחדש","שכונה שקטה","קרוב לתחבורה"];
-function roomBand(r){ return r<=2 ? 0 : r<=3 ? 1 : r<=4 ? 2 : 3; } // 1–2 / 2.5–3 / 3.5–4 / 4.5+
-function cbsLookup(city, band){
-  const c = CBS_CITY[city];
-  if (c && c[band]!=null) return {v:c[band], scope:city, level:"עיר"};
-  const dk = CITY_TO_DISTRICT[city];
-  if (dk && CBS_DISTRICT[dk]) return {v:CBS_DISTRICT[dk][band], scope:dk, level:"מחוז"};
-  return {v:CBS_NAT[band], scope:"ממוצע ארצי", level:"ארצי"};
-}
-
-const CONTRIB_KEY = "fairent_contrib_v1";
-const loadContrib = () => { try{return JSON.parse(localStorage.getItem(CONTRIB_KEY))||[]}catch(e){return[]} };
-const saveContrib = a => localStorage.setItem(CONTRIB_KEY, JSON.stringify(a));
-
-// populate city dropdowns — CBS big cities first, then district-fallback towns, then "other"
-const cityNames = [
-  "תל אביב–יפו","ירושלים","חיפה","באר שבע","ראשון לציון","פתח תקווה","נתניה",
-  "אשדוד","רמת גן","הרצליה","חולון","בת ים","רחובות","אשקלון","חדרה","בני ברק","כפר סבא","בית שמש",
-  "גבעתיים","רמת השרון","רעננה","מודיעין","באר יעקב","יבנה","נהריה","אילת",
-  "אחר / עיר אחרת"
+const TAGS = [
+  {key:'noise',label:'רעש / שכנים רועשים',pol:-1,w:.05},
+  {key:'neglect',label:'תחזוקה לקויה',pol:-1,w:.06},
+  {key:'damp',label:'רטיבות / עובש',pol:-1,w:.06},
+  {key:'hidden',label:'עלויות נסתרות',pol:-1,w:.04},
+  {key:'landlord_bad',label:'בעל בית בעייתי',pol:-1,w:.05},
+  {key:'inflated',label:'מחיר מנופח לאזור',pol:-1,w:.07},
+  {key:'quiet',label:'שקט',pol:1,w:.03},
+  {key:'maintained',label:'מתוחזק היטב',pol:1,w:.04},
+  {key:'landlord_good',label:'בעל בית הוגן',pol:1,w:.04},
+  {key:'renovated',label:'משופץ',pol:1,w:.03}
 ];
-for (const sel of [document.getElementById('city'), document.getElementById('cCity')]){
-  cityNames.forEach(c => { const o=document.createElement('option'); o.value=o.textContent=c; sel.appendChild(o); });
-}
+const TAGMAP = Object.fromEntries(TAGS.map(t=>[t.key,t]));
 
-/* ---- benchmark: CBS actual rent (city × room-band) blended with local contributions ---- */
-function benchmark(city, rooms, sqm){
-  const band = roomBand(rooms);
-  const look = cbsLookup(city, band);    // {v, scope, level}
-  let mid = look.v;                       // CBS average actual rent for this city × band
-  const typ = ROOM_SQM[rooms] || 68;
-  const size = sqm && sqm>=10 ? sqm : typ;
-  // optional size fine-tune — nudge within the band by size vs typical (soft, bounded)
-  if (sqm && sqm>=10){
-    const f = Math.max(0.85, Math.min(1.15, sqm/typ));
-    mid = mid * (0.65 + 0.35*f);          // size moves the estimate only partway
-  }
-  // blend matching crowdsourced ACTUAL rents (same city, ±1 room); CBS anchor weighted ~4
-  const contrib = loadContrib().filter(c => c.city===city && Math.abs(c.rooms-rooms)<=1 && c.rent>0);
-  let num = mid*4, den = 4, n = 0;
-  contrib.forEach(c => { num += c.rent; den += 1; n++; });
-  mid = num/den;
-  // present as a fairness band, not a false-precision point
-  const low = Math.round(mid*0.90), high = Math.round(mid*1.07);
-  const ppm = mid/size;
-  return { fair:mid, low, high, ppm, size, band, scope:look.scope, level:look.level,
-           fallback: look.level!=="עיר", nContrib:n };
-}
+/* ---- storage ---- */
+const RKEY="fairent_reports_v2";
+const uid = (()=>{ let u; try{u=localStorage.getItem('fairent_uid')}catch(e){} if(!u){u='u'+Math.abs((Date.now()^(performance.now()*1e3))|0).toString(36); try{localStorage.setItem('fairent_uid',u)}catch(e){}} return u; })();
+const loadReports=()=>{ try{return JSON.parse(localStorage.getItem(RKEY))||null}catch(e){return null} };
+const saveReports=a=>{ try{localStorage.setItem(RKEY,JSON.stringify(a))}catch(e){} };
+const norm=s=>(s||'').toString().trim().replace(/[״"'’]/g,'').toLowerCase();
+const addrKey=(c,st,n)=>[norm(c),norm(st),norm(n)].join('|');
+const addrLabel=(c,st,n,h)=>[st&&n?`${st} ${n}`:st||'', h, c].filter(Boolean).join(', ');
 
-function classify(delta){
-  if (delta < -0.08) return {key:'below', cls:'b-info',  label:'מתחת למחיר השוק', pin:12};
-  if (delta <= 0.07) return {key:'fair',  cls:'b-fair',  label:'מחיר הוגן',       pin:33};
-  if (delta <= 0.18) return {key:'warn',  cls:'b-warn',  label:'מעט מעל השוק',    pin:55};
-  if (delta <= 0.35) return {key:'high',  cls:'b-high',  label:'גבוה מהשוק',      pin:74};
-  return {key:'alert', cls:'b-alert', label:'גבוה משמעותית', pin:92};
+/* ---- seed demo reports (clearly flagged) for one demo address ---- */
+const DEMO_KEY = addrKey("תל אביב–יפו","דיזנגוף","99");
+function seedReports(){
+  let r=loadReports();
+  if(r) return r;
+  r=[
+    {id:'d1',key:DEMO_KEY,city:"תל אביב–יפו",street:"דיזנגוף",num:"99",rooms:3,sqm:72,paid:7400,
+      tags:['inflated','noise'],cmt:"שילמנו 7,400 והתברר שדירה זהה בבניין הושכרה ב-6,600. רחוב רועש בלילה.",
+      confirms:9,denies:1,voters:{},demo:true,t:Date.now()-86400000*9},
+    {id:'d2',key:DEMO_KEY,city:"תל אביב–יפו",street:"דיזנגוף",num:"99",rooms:3,sqm:70,paid:6800,
+      tags:['hidden','landlord_bad'],cmt:"בעל הבית דרש תשלום נפרד על ועד ומים שלא הופיע במודעה.",
+      confirms:6,denies:0,voters:{},demo:true,t:Date.now()-86400000*23},
+    {id:'d3',key:DEMO_KEY,city:"תל אביב–יפו",street:"דיזנגוף",num:"99",rooms:3,sqm:74,paid:6500,
+      tags:['landlord_good'],cmt:"הצלחנו להוריד ₪500 אחרי שהראינו מחירים באזור. בעל בית סביר בסוף.",
+      confirms:4,denies:2,voters:{},demo:true,t:Date.now()-86400000*40}
+  ];
+  saveReports(r);
+  return r;
 }
+let REPORTS = seedReports();
 
-function makeComps(city, fair, size, rooms){
-  const out=[]; const variants=[-0.11,-0.04,0.03,0.09];
-  variants.forEach((v,i)=>{
-    const price=fair*(1+v); const s=Math.round(size*(1+ (v/2)));
-    out.push({hood:HOODS[i%HOODS.length], rooms, sqm:s, price, ppm:price/s});
+/* ---- benchmark: seed proxy + verified community paid-rent ---- */
+function benchmark(city,rooms,sqm){
+  const size = sqm&&sqm>=10 ? sqm : (ROOM_SQM[rooms]||68);
+  const ppm = CITY[city] ?? 50;
+  return { fair: ppm*size, ppm, size };
+}
+/* report credibility from confirm/deny: 0..1.4 */
+function credibility(r){
+  const tot=r.confirms+r.denies;
+  if(tot===0) return .35;                          // unvoted = low weight
+  const ratio=r.confirms/tot;                       // 0..1
+  const volume=Math.min(1,tot/8);                   // more votes = more weight
+  return Math.max(0, (ratio-0.25)/0.75) * (0.4+0.6*volume) * 1.4;
+}
+function communityAdjust(reports, baseFair, asking){
+  let valueAdj=0, paidNum=0, paidDen=0, used=0;
+  reports.forEach(r=>{
+    const c=credibility(r);
+    if(c<=0.05) return;
+    used++;
+    (r.tags||[]).forEach(k=>{ const t=TAGMAP[k]; if(t){ valueAdj += t.pol*t.w*c; } });
+    if(r.paid>0){ paidNum += r.paid*c; paidDen += c; }
   });
-  return out.sort((a,b)=>a.price-b.price);
+  valueAdj=Math.max(-0.28,Math.min(0.14,valueAdj));
+  let fair=baseFair*(1+valueAdj);
+  let verifiedPaid=0;
+  if(paidDen>0){ verifiedPaid=paidNum/paidDen; fair = fair*0.55 + verifiedPaid*0.45; }
+  return { fair, valueAdj, verifiedPaid, used };
 }
 
-function buildScript(city, rooms, asking, fair, delta, cls){
-  const gap = asking - fair;
-  const pct = Math.round(Math.abs(delta)*100);
-  const target = Math.round(fair/50)*50;
-  if (cls.key==='below' || cls.key==='fair'){
-    return `שלום,\nבדקתי את שכר הדירה המבוקש (${NIS(asking)}) מול נתוני שוק לדירת ${rooms} חדרים ב${city}.\nהמחיר נראה הוגן וסביר ביחס לאזור. אשמח לקדם את החתימה על החוזה — בכפוף לבדיקת תקינות הדירה ותנאי תשלום הוגנים.\nתודה.`;
-  }
-  return `שלום,\nאני מעוניין/ת בדירה ורוצה להתקדם — אך בדקתי את המחיר מול השוק.\nלפי נתוני שכירות לדירת ${rooms} חדרים ב${city}, מחיר השוק ההוגן הוא סביב ${NIS(fair)} לחודש. המחיר המבוקש (${NIS(asking)}) גבוה ב-${pct}% מכך — פער של כ-${NIS(gap)} בחודש, שהם ${NIS(gap*12)} בשנה.\nאני מציע/ה להעמיד את שכר הדירה על ${NIS(target)} לחודש. אני שוכר/ת רציני/ת ואמין/ה, ואשמח לחתום במהירות בתנאים הוגנים.\nאשמח לשמוע מה דעתך. תודה!`;
+/* ---- classify ---- */
+function classify(d){
+  if(d<-0.08) return {key:'below',cls:'b-info',label:'מתחת למחיר השוק',pin:12};
+  if(d<=0.07) return {key:'fair',cls:'b-fair',label:'מחיר הוגן',pin:33};
+  if(d<=0.18) return {key:'warn',cls:'b-warn',label:'מעט מעל השוק',pin:55};
+  if(d<=0.35) return {key:'high',cls:'b-high',label:'גבוה מהשוק',pin:74};
+  return {key:'alert',cls:'b-alert',label:'גבוה משמעותית',pin:92};
+}
+function makeComps(city,fair,size,rooms){
+  return [-0.11,-0.04,0.03,0.09].map((v,i)=>({hood:HOODS[i%HOODS.length],rooms,sqm:Math.round(size*(1+v/2)),price:fair*(1+v),ppm:fair*(1+v)/Math.round(size*(1+v/2))})).sort((a,b)=>a.price-b.price);
+}
+function buildScript(city,rooms,asking,fair,delta,cls,verifiedPaid){
+  const gap=asking-fair, pct=Math.round(Math.abs(delta)*100), target=Math.round(fair/50)*50;
+  const ev = verifiedPaid? `\nשוכרים בנכס דיווחו על תשלום בפועל סביב ${NIS(verifiedPaid)} — נמוך מהמבוקש.` : '';
+  if(cls.key==='below'||cls.key==='fair')
+    return `שלום,\nבדקתי את שכר הדירה המבוקש (${NIS(asking)}) מול נתוני שוק לדירת ${rooms} חדרים ב${city}.${ev}\nהמחיר נראה הוגן וסביר ביחס לאזור. אשמח לקדם את החתימה — בכפוף לבדיקת תקינות הדירה ותנאי תשלום הוגנים.\nתודה.`;
+  return `שלום,\nאני מעוניין/ת בדירה ורוצה להתקדם — אך בדקתי את המחיר מול השוק.\nלפי נתוני שכירות לדירת ${rooms} חדרים ב${city}, מחיר השוק ההוגן הוא סביב ${NIS(fair)} לחודש.${ev}\nהמבוקש (${NIS(asking)}) גבוה ב-${pct}% מכך — פער של כ-${NIS(gap)} בחודש (${NIS(gap*12)} בשנה).\nאני מציע/ה להעמיד את שכר הדירה על ${NIS(target)} לחודש. אני שוכר/ת רציני/ת ואמין/ה ואשמח לחתום מהר בתנאים הוגנים.\nאשמח לשמוע מה דעתך. תודה!`;
 }
 
-let lastScript = "";
-document.getElementById('checkForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  const city = document.getElementById('city').value;
-  const rooms = parseFloat(document.getElementById('rooms').value);
-  const sqm = parseFloat(document.getElementById('sqm').value)||0;
-  const asking = parseFloat(document.getElementById('rent').value)||0;
-  if (!city || !rooms || !asking){ toast('נא למלא עיר, חדרים ושכר דירה'); return; }
+/* ---- populate selects ---- */
+Object.keys(CITY).forEach(c=>{ const o=document.createElement('option'); o.value=o.textContent=c; document.getElementById('city').appendChild(o); });
+/* tag picker */
+const tagPick=document.getElementById('tagPick');
+TAGS.forEach(t=>{ const b=document.createElement('button'); b.type='button'; b.textContent=t.label; b.dataset.key=t.key;
+  b.className=t.pol<0?'neg':'pos'; b.setAttribute('aria-pressed','false');
+  b.onclick=()=>b.setAttribute('aria-pressed', b.getAttribute('aria-pressed')==='true'?'false':'true'); tagPick.appendChild(b); });
 
-  const {fair, low, high, ppm, size, band, scope, level, fallback, nContrib} = benchmark(city, rooms, sqm);
-  const delta = (asking - fair)/fair;
-  const cls = classify(delta);
-  const lo = low, hi = high;
+/* ---- address preview ---- */
+function addrFields(){ return {city:document.getElementById('city').value,hood:document.getElementById('hood').value,street:document.getElementById('street').value,num:document.getElementById('num').value}; }
+function refreshAddrPreview(){ const a=addrFields(); const l=addrLabel(a.city,a.street,a.num,a.hood); const el=document.getElementById('addrPreview');
+  if(l){ el.style.display='flex'; el.querySelector('span').textContent=l; } else el.style.display='none'; }
+['city','hood','street','num'].forEach(id=>document.getElementById(id).addEventListener('input',refreshAddrPreview));
+
+/* ---- main check ---- */
+let lastScript='', curKey='';
+function runCheck(){
+  const a=addrFields();
+  const rooms=parseFloat(document.getElementById('rooms').value);
+  const sqm=parseFloat(document.getElementById('sqm').value)||0;
+  const asking=parseFloat(document.getElementById('rent').value)||0;
+  if(!a.city||!rooms||!asking){ toast('נא למלא עיר, חדרים ושכר דירה'); return; }
+
+  const base=benchmark(a.city,rooms,sqm);
+  curKey=addrKey(a.city,a.street,a.num);
+  const propReports = (a.street&&a.num)? REPORTS.filter(r=>r.key===curKey) : [];
+  const comm = communityAdjust(propReports, base.fair, asking);
+  const fair = comm.fair;
+  const delta=(asking-fair)/fair, cls=classify(delta), lo=fair*0.92, hi=fair*1.12;
 
   document.getElementById('resProfile').textContent =
-    `דירת ${rooms} חדרים${sqm?` · ${sqm} מ״ר`:''} ב${city}${document.getElementById('hood').value?` · ${document.getElementById('hood').value}`:''}`;
-  const badge=document.getElementById('resBadge'); badge.className='badge '+cls.cls; badge.textContent=cls.label;
+    `דירת ${rooms} חדרים${sqm?` · ${sqm} מ״ר`:''} · ${addrLabel(a.city,a.street,a.num,a.hood)||a.city}`;
+  const badge=document.getElementById('resBadge'); badge.className='vbadge '+cls.cls; badge.textContent=cls.label;
+  const sign=delta>=0?'+':'−';
+  const dEl=document.getElementById('resDelta'); dEl.innerHTML=`${sign}${Math.round(Math.abs(delta)*100)}% <small style="font-size:1rem;font-weight:600;color:var(--text-secondary)">מול השוק</small>`;
+  dEl.style.color = (cls.key==='fair'||cls.key==='below')?'var(--fair)':cls.key==='warn'?'var(--warn)':cls.key==='high'?'var(--high)':'var(--alert)';
+  document.getElementById('resDeltaSub').textContent = delta>=0
+    ? `אתם משלמים ${NIS(asking-fair)} יותר מהמחיר ההוגן בחודש (≈ ${NIS((asking-fair)*12)} בשנה).`
+    : `המחיר נמוך מהשוק — עסקה טובה.`;
+  document.getElementById('resPin').style.insetInlineStart=cls.pin+'%';
+  document.getElementById('resFair').innerHTML=`${NIS(fair)} <small>/ חודש</small>`;
+  document.getElementById('resRange').innerHTML=`${NIS(lo)}–${NIS(hi)}`;
 
-  const sign = delta>=0?'+':'−';
-  document.getElementById('resDelta').innerHTML = `${sign}${Math.round(Math.abs(delta)*100)}% <small>מול השוק</small>`;
-  document.getElementById('resDelta').style.color =
-    cls.key==='fair'||cls.key==='below' ? 'var(--fair)' : cls.key==='warn' ? 'var(--warn)' : cls.key==='high' ? 'var(--high)' : 'var(--alert)';
-  document.getElementById('resDeltaSub').textContent =
-    delta>=0 ? `אתם משלמים ${NIS(asking-fair)} יותר מהמחיר ההוגן בחודש (≈ ${NIS((asking-fair)*12)} בשנה).`
-             : `המחיר נמוך מהשוק — עסקה טובה.`;
-  document.getElementById('resPin').style.insetInlineStart = cls.pin+'%';
-  document.getElementById('resFair').innerHTML = `${NIS(fair)} <small>/ חודש</small>`;
-  document.getElementById('resRange').innerHTML = `${NIS(lo)}–${NIS(hi)}`;
+  // community impact line
+  const commEl=document.getElementById('resComm');
+  if(comm.used>0){
+    commEl.style.display='flex';
+    const adjPct=Math.round(comm.valueAdj*100);
+    const dir = adjPct<0? `הורידו את השווי ההוגן ב-${Math.abs(adjPct)}%` : adjPct>0? `העלו את השווי ההוגן ב-${adjPct}%` : 'אומתו ללא שינוי שווי';
+    document.getElementById('resCommTxt').innerHTML =
+      `<b>${comm.used} דיווחי שוכרים מאומתים</b> על הנכס ${dir}${comm.verifiedPaid?` · שכר ששולם בפועל ≈ <b>${NIS(comm.verifiedPaid)}</b>`:''}. כך הקהילה מזיזה את ההערכה לטובת השוכר.`;
+  } else commEl.style.display='none';
 
-  // comparables
-  const comps = makeComps(city, fair, size, rooms);
-  document.getElementById('resComps').innerHTML = comps.map((c,i)=>`
-    <div class="comp">
-      <div class="dot">${i+1}</div>
-      <div class="meta"><b>${c.rooms} חד׳ · ${c.sqm} מ״ר</b><div class="sub">${c.hood}, ${city}</div></div>
-      <div class="price">${NIS(c.price)}<small>${NIS(c.ppm)}/מ״ר</small></div>
-    </div>`).join('');
+  // comps
+  document.getElementById('resComps').innerHTML = makeComps(a.city,base.fair,base.size,rooms).map((c,i)=>`
+    <div class="comp"><div class="dot2">${i+1}</div>
+      <div class="meta"><b>${c.rooms} חד׳ · ${c.sqm} מ״ר</b><div class="sub">${c.hood}, ${a.city}</div></div>
+      <div class="price">${NIS(c.price)}<small>${NIS(c.ppm)}/מ״ר</small></div></div>`).join('');
 
-  // confidence: more contributions -> more bars (2 baseline + contrib)
-  const conf = Math.max(2, Math.min(5, 2 + Math.ceil(nContrib/2)));
-  document.querySelectorAll('#resConf i').forEach((b,i)=> b.className = i<conf?'on':'');
-
-  // script
-  lastScript = buildScript(city, rooms, asking, fair, delta, cls);
-  document.getElementById('resScript').textContent = lastScript;
-
-  const scopeTxt = level==="עיר" ? `שכר הדירה הממוצע ב${scope}`
-                 : level==="מחוז" ? `שכר הדירה הממוצע ב${scope} (אין נתון עירוני נפרד לעיר זו)`
-                 : `הממוצע הארצי (אין נתון מקומי)`;
+  const conf=Math.max(2,Math.min(5,2+Math.ceil(comm.used/1.5)));
+  document.querySelectorAll('#resConf i').forEach((b,i)=> b.className=i<conf?'on':'');
+  lastScript=buildScript(a.city,rooms,asking,fair,delta,cls,comm.verifiedPaid);
+  document.getElementById('resScript').textContent=lastScript;
   document.getElementById('resSource').innerHTML =
-    `מבוסס על <a href="${CBS_URL}" target="_blank" rel="noopener"><b>נתוני הלמ״ס</b></a> — ${scopeTxt} לדירת <b>${BAND_LABEL[band]}</b>, ${CBS_PERIOD} (שכר דירה בפועל, לוח 4.9).` +
-    `${nContrib?` שולבו גם <b>${nContrib} תרומות קהילה</b> תואמות.`:''}` +
-    ` ${NEW_LEASE_NOTE} זו הערכת טווח לכוח מיקוח — לא שמאות מוסמכת.`;
+    `בסיס: נתוני <b>seed</b> (₪/מ״ר לפי עיר)${comm.used?` · משולב עם <b>${comm.used} דיווחי קהילה מאומתים</b>`:''}. בגרסה מלאה ישולב פיד הלמ״ס לפי עיר × חדרים. הערכת מיקוח — לא שמאות מוסמכת.`;
 
-  renderIntel(city);
-
-  const r=document.getElementById('result'); r.classList.add('show');
-  r.scrollIntoView({behavior:'smooth', block:'start'});
-});
-
-document.getElementById('copyBtn').addEventListener('click', ()=>{
-  navigator.clipboard?.writeText(lastScript).then(()=>toast('התסריט הועתק ✓')).catch(()=>toast('לא ניתן להעתיק'));
-});
-
-/* ---- contributions ---- */
-function refreshCount(){
-  const n=loadContrib().length;
-  document.getElementById('contribCount').textContent = `📈 ${n.toLocaleString('he-IL')} תרומות נאספו עד כה`;
+  document.getElementById('result').classList.add('show');
+  renderCommunity(a, propReports);
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
-document.getElementById('contribForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  const city=document.getElementById('cCity').value;
-  const rooms=parseFloat(document.getElementById('cRooms').value);
-  const rent=parseFloat(document.getElementById('cRent').value)||0;
-  const sqm=parseFloat(document.getElementById('cSqm').value)||0;
-  if(!city||!rooms||!rent){ toast('נא למלא עיר, חדרים וסכום'); return; }
-  const size=sqm||ROOM_SQM[rooms]||68;
-  const issues=[...document.querySelectorAll('#cIssues input:checked')].map(c=>c.value);
-  const tip=(document.getElementById('cTip').value||'').trim().slice(0,240);
-  const arr=loadContrib(); arr.push({city,rooms,rent,sqm,ppm:rent/size,issues,tip,t:Date.now()});
-  saveContrib(arr); refreshCount(); e.target.reset();
-  toast('תודה! הידע שלך עכשיו עוזר לשוכרים הבאים 🤝');
+document.getElementById('checkForm').addEventListener('submit',e=>{e.preventDefault();runCheck();});
+
+/* ---- community render ---- */
+function timeago(t){ const d=(Date.now()-t)/86400000; if(d<1)return'היום'; if(d<2)return'אתמול'; return `לפני ${Math.round(d)} ימים`; }
+function renderCommunity(a, propReports){
+  const sec=document.getElementById('community');
+  sec.style.display='block';
+  const hasAddr=a.street&&a.num;
+  document.getElementById('intelAddr').textContent = hasAddr
+    ? `📍 ${addrLabel(a.city,a.street,a.num,a.hood)}`
+    : `📍 ${a.city} — הוסיפו רחוב ומספר בית לקבלת מודיעין ברמת הנכס`;
+
+  // power score: 100 = fully fair for renters; verified negatives drag down
+  const comm=communityAdjust(propReports,1,1);
+  let score = Math.round(72 + comm.valueAdj*120 + (propReports.length?Math.min(12,propReports.length*3):0));
+  if(!propReports.length) score=null;
+  const ring=document.getElementById('psRing');
+  if(score===null){
+    ring.textContent='—'; ring.style.background='var(--n-400)';
+    document.getElementById('psLabel').textContent='אין עדיין דיווחים על הנכס';
+    document.getElementById('psSub').textContent='היו הראשונים לדווח ולחזק את השוכרים הבאים.';
+  } else {
+    score=Math.max(8,Math.min(98,score));
+    ring.textContent=score;
+    ring.style.background = score>=66?'var(--fair)':score>=45?'var(--warn)':'var(--alert)';
+    document.getElementById('psLabel').textContent = `ציון כוח-שוכר: ${score}/100`;
+    document.getElementById('psSub').textContent = score>=66?'נכס בריא יחסית לשוכר.':score>=45?'יש דגלים — מקום למיקוח.':'דגלים מאומתים — מחיר/תנאים בעייתיים לשוכר.';
+  }
+
+  const list=document.getElementById('reportList');
+  if(!propReports.length){
+    list.innerHTML = `<div class="note"><span class="i">🛡️</span><span>אין עדיין דיווחים על כתובת זו. ${hasAddr?'היו הראשונים להוסיף דיווח למטה.':'הזינו רחוב ומספר בית כדי לראות או להוסיף מודיעין על הנכס.'}</span></div>`;
+  } else {
+    list.innerHTML = propReports.slice().sort((x,y)=>(y.confirms-y.denies)-(x.confirms-x.denies)).map(r=>{
+      const net=r.confirms-r.denies, c=credibility(r);
+      const myVote=r.voters&&r.voters[uid];
+      const verified = net>=3 ? `<span class="verified">✓ מאומת ע״י ${r.confirms} שוכרים</span>` : '';
+      const demo = r.demo? `<span class="demo">לדוגמה</span>`:'';
+      const tags=(r.tags||[]).map(k=>{const t=TAGMAP[k];return t?`<span class="tag ${t.pol<0?'neg':'pos'}">${t.label}</span>`:''}).join('');
+      return `<div class="report" data-id="${r.id}">
+        <div class="top"><span class="who">שוכר אנונימי <small>· ${timeago(r.t)}</small></span>${verified}${demo}
+          ${r.paid?`<span class="paid">${NIS(r.paid)}<small> ששולם בפועל</small></span>`:''}</div>
+        ${tags?`<div class="tags">${tags}</div>`:''}
+        ${r.cmt?`<div class="cmt">${r.cmt.replace(/[<>]/g,'')}</div>`:''}
+        <div class="vote-row">
+          <button class="vote up ${myVote==='up'?'on':''}" data-dir="up"><span>👍 מאשר/ת</span><span class="n">${r.confirms}</span></button>
+          <button class="vote down ${myVote==='down'?'on':''}" data-dir="down"><span>👎 מפריך/ה</span><span class="n">${r.denies}</span></button>
+          <span class="net">השפעה: ${net>0?'+':''}${net} · אמינות ${Math.round(Math.min(1,c/1.4)*100)}%</span>
+        </div></div>`;
+    }).join('');
+    list.querySelectorAll('.report').forEach(el=>{
+      el.querySelectorAll('.vote').forEach(btn=> btn.onclick=()=>vote(el.dataset.id,btn.dataset.dir));
+    });
+  }
+  document.getElementById('addReportWrap').open = !!hasAddr && !propReports.length;
+}
+function vote(id,dir){
+  const r=REPORTS.find(x=>x.id===id); if(!r) return;
+  r.voters=r.voters||{};
+  const prev=r.voters[uid];
+  if(prev===dir){ // toggle off
+    if(dir==='up')r.confirms--; else r.denies--; delete r.voters[uid];
+  } else {
+    if(prev==='up')r.confirms--; if(prev==='down')r.denies--;
+    if(dir==='up')r.confirms++; else r.denies++; r.voters[uid]=dir;
+  }
+  r.confirms=Math.max(0,r.confirms); r.denies=Math.max(0,r.denies);
+  saveReports(REPORTS);
+  toast(dir==='up'?'אישרת את הדיווח ✓':'הפרכת את הדיווח');
+  runCheck(); // recompute verdict + re-render with updated counts
+}
+document.getElementById('addReportBtn').addEventListener('click',()=>{
+  const a=addrFields();
+  if(!a.city||!a.street||!a.num){ toast('כדי לדווח על נכס יש להזין עיר, רחוב ומספר בית'); return; }
+  const paid=parseFloat(document.getElementById('rPaid').value)||0;
+  const tags=[...document.querySelectorAll('#tagPick button[aria-pressed=true]')].map(b=>b.dataset.key);
+  const cmt=document.getElementById('rCmt').value.trim();
+  if(!paid && !tags.length && !cmt){ toast('הוסיפו לפחות סכום, תיוג או הערה'); return; }
+  REPORTS.push({id:'r'+Date.now().toString(36),key:addrKey(a.city,a.street,a.num),city:a.city,street:a.street,num:a.num,
+    rooms:parseFloat(document.getElementById('rooms').value)||0,sqm:parseFloat(document.getElementById('sqm').value)||0,
+    paid,tags,cmt,confirms:0,denies:0,voters:{},t:Date.now()});
+  saveReports(REPORTS);
+  document.getElementById('rPaid').value=''; document.getElementById('rCmt').value='';
+  document.querySelectorAll('#tagPick button').forEach(b=>b.setAttribute('aria-pressed','false'));
+  toast('הדיווח שלך פורסם — תודה שאתה מחזק את השוכרים 🤝');
+  runCheck();
 });
 
-/* ---- dark mode ---- */
+/* ---- demo button ---- */
+document.getElementById('demoBtn').addEventListener('click',()=>{
+  document.getElementById('city').value="תל אביב–יפו";
+  document.getElementById('hood').value="לב העיר";
+  document.getElementById('street').value="דיזנגוף";
+  document.getElementById('num').value="99";
+  document.getElementById('rooms').value="3";
+  document.getElementById('sqm').value="72";
+  document.getElementById('rent').value="7400";
+  refreshAddrPreview(); runCheck();
+});
+
+/* ---- copy / dark / toast ---- */
+document.getElementById('copyBtn').addEventListener('click',()=>{ navigator.clipboard?.writeText(lastScript).then(()=>toast('התסריט הועתק ✓')).catch(()=>toast('לא ניתן להעתיק')); });
 const modeBtn=document.getElementById('modeBtn');
 function setMode(m){ document.documentElement.dataset.mode=m; modeBtn.textContent=m==='dark'?'☀️':'🌙';
-  document.querySelector('meta[name=theme-color]').content = m==='dark'?'#091a21':'#0e5f52';
-  try{localStorage.setItem('fairent_mode',m)}catch(e){} }
-modeBtn.addEventListener('click',()=> setMode(document.documentElement.dataset.mode==='dark'?'light':'dark'));
-setMode(localStorage.getItem('fairent_mode') || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
-
-/* ---- toast ---- */
-let tT; function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(tT); tT=setTimeout(()=>t.classList.remove('show'),2400); }
-
-refreshCount();
+  document.querySelector('meta[name=theme-color]').content=m==='dark'?'#050511':'#310A91'; try{localStorage.setItem('fairent_mode',m)}catch(e){} }
+modeBtn.addEventListener('click',()=>setMode(document.documentElement.dataset.mode==='dark'?'light':'dark'));
+setMode((()=>{try{return localStorage.getItem('fairent_mode')}catch(e){return null}})() || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+let tT; function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(tT); tT=setTimeout(()=>t.classList.remove('show'),2500); }
 </script>
 </body>
 </html>
