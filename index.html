@@ -13,6 +13,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Assistant:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Free OpenStreetMap map (Leaflet) — no API key, no billing -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <!-- ============================================================================
      Fairent · הוגן — renter-power fair-rent platform for Israel (Hebrew-first · RTL)
@@ -407,6 +409,13 @@ footer { margin-top:44px; border-top:1px solid var(--border); padding-block:28px
 footer .legal { color:var(--text-muted); font-size:.82rem; line-height:1.7; }
 footer .legal b { color:var(--text-secondary); }
 
+/* OSM / Leaflet map (free, no key) */
+.map-wrap { margin:4px 0 18px; }
+.map { height:220px; width:100%; border-radius:var(--radius-md); border:1px solid var(--border); overflow:hidden; z-index:0; background:var(--surface-sunken); }
+.map-cap { display:flex; gap:6px; align-items:center; font-size:.78rem; color:var(--text-muted); margin-top:7px; font-weight:600; }
+.leaflet-container { font-family:var(--font-body); background:var(--surface-sunken); }
+.leaflet-popup-content { font-family:var(--font-body); font-weight:600; }
+
 /* toast pill (product-specific transient) */
 .toast-pill { position:fixed; inset-block-end:20px; inset-inline:0; margin-inline:auto; width:max-content; max-width:90%;
   background:var(--n-900); color:var(--n-0); padding:12px 20px; border-radius:var(--radius-pill); font-weight:600; box-shadow:var(--shadow-lg);
@@ -517,7 +526,7 @@ footer .legal b { color:var(--text-secondary); }
       <div class="comm-impact" id="resComm" style="display:none"><span class="i">🤝</span><span id="resCommTxt"></span></div>
 
       <h3 style="margin:24px 0 2px; font-size:1.05rem">דירות דומות באזור</h3>
-      <p style="margin:0 0 6px; font-size:.82rem; color:var(--text-muted)">דוגמאות מודלות סביב מחיר השוק לפרופיל זה (PoC).</p>
+      <p style="margin:0 0 6px; font-size:.82rem; color:var(--text-muted)">דוגמאות להמחשה סביב מחיר השוק לפרופיל זה.</p>
       <div class="comps" id="resComps"></div>
 
       <h3 style="margin:24px 0 8px; font-size:1.05rem">תסריט מיקוח מוכן לשליחה</h3>
@@ -543,6 +552,10 @@ footer .legal b { color:var(--text-secondary); }
       <div class="power-score" id="powerScore">
         <div class="ring" id="psRing">—</div>
         <div class="lbl"><b id="psLabel">ציון כוח-שוכר לנכס</b><span id="psSub"></span></div>
+      </div>
+      <div class="map-wrap" id="mapWrap" style="display:none">
+        <div id="map" class="map"></div>
+        <div class="map-cap">📍 מיקום הנכס שנבדק · מפת <span dir="ltr">OpenStreetMap</span> חופשית</div>
       </div>
       <div id="reportList"></div>
 
@@ -576,9 +589,9 @@ footer .legal b { color:var(--text-secondary); }
     <details class="method">
       <summary>🔬 שקיפות מלאה: הנתונים, חישוב ההוגנות ואיך הקהילה מזיזה אותו</summary>
       <div class="body">
-        <p>לא מבקשים מכם לסמוך עלינו בעיניים עצומות. הנה בדיוק מה שקורה (גרסת PoC):</p>
+        <p>לא מבקשים מכם לסמוך עלינו בעיניים עצומות. הנה בדיוק מה שקורה בגרסת ההדגמה:</p>
         <ul>
-          <li><b>בסיס נתונים</b> — ערכי שוק (₪ למ״ר לפי עיר) בסדרי גודל ציבוריים (הלמ״ס). ערכי <i>seed</i> להמחשה; בגרסה מלאה ייכנס פיד רשמי של הלמ״ס לפי עיר × מספר חדרים.</li>
+          <li><b>בסיס נתונים</b> — ערכי שוק (₪ למ״ר לפי עיר) בסדרי גודל ציבוריים (הלמ״ס). ערכי בסיס להמחשה; בגרסה מלאה ייכנס פיד רשמי של הלמ״ס לפי עיר × מספר חדרים.</li>
           <li><b>חישוב בסיס</b> — מחיר הוגן ≈ <code>שטח × ₪ למ״ר</code>; הסטייה = <code>(מבוקש − הוגן) ÷ הוגן</code>.</li>
           <li><b>מודיעין קהילתי</b> — דיווחי שוכרים (שכר ששולם בפועל + תיוגי חוויה) משוקללים לפי <b>מאזן האישורים וההפרכות</b>: דיווח מאומת מקבל משקל, דיווח מופרך מאבד אותו.</li>
           <li><b>איך זה מזיז את הציון</b> — מטרדים מאומתים (רעש, תחזוקה לקויה, עלויות נסתרות, מחיר מנופח) מורידים את השווי ההוגן של הנכס לשוכר; חוויות חיוביות מאומתות מעלות אותו מעט. כך הפער מול המבוקש משתנה.</li>
@@ -593,7 +606,7 @@ footer .legal b { color:var(--text-secondary); }
       <div class="foot-mark"><img src="Brand/Fairent_icon_logo.svg" alt="Fairent · הוגן" height="40"></div>
       <div class="studio-badge"><img src="3shamrocks.png" alt="3Shamrocks Studio"></div>
       <div class="legal">
-        <b>הוגן · Fairent™</b> — כוח השוכרים. שכר דירה הוגן. · מוצר של 3Shamrocks Studio · גרסת הדגמה (PoC)<br>
+        <b>הוגן · Fairent™</b> — כוח השוכרים. שכר דירה הוגן. · מוצר של 3Shamrocks Studio · גרסת הדגמה<br>
         © 2026 3Shamrocks Studio. All rights reserved.
       </div>
     </div>
@@ -602,6 +615,8 @@ footer .legal b { color:var(--text-secondary); }
 
 <div class="toast-pill" id="toast" role="status" aria-live="polite"></div>
 
+<!-- Free OpenStreetMap map engine (Leaflet) — no API key, no billing -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /* ============================================================================
    Fairent engine — CBS-proxy benchmark + community-verified intel.
@@ -642,6 +657,22 @@ const norm=s=>(s||'').toString().trim().replace(/[״"'’]/g,'').toLowerCase();
 const addrKey=(c,st,n)=>[norm(c),norm(st),norm(n)].join('|');
 const addrLabel=(c,st,n,h)=>[st&&n?`${st} ${n}`:st||'', h, c].filter(Boolean).join(', ');
 
+/* ---- saved-data flow · FREE Supabase tier --------------------------------
+   Paste a free-tier project URL + anon (public) key below and every renter
+   report + confirm/deny vote is shared across all renters, globally. Leave
+   blank and the exact same flow runs on-device via localStorage. No paid
+   APIs, no billing — the anon key is a public, RLS-guarded key. See SUPABASE.md
+   for the one-time table + policy setup. */
+const SUPABASE = { url:"", anonKey:"" };
+const REMOTE = !!(SUPABASE.url && SUPABASE.anonKey);
+const sbHeaders = ()=>({ 'apikey':SUPABASE.anonKey, 'Authorization':'Bearer '+SUPABASE.anonKey, 'Content-Type':'application/json' });
+async function sbAll(){ const r=await fetch(`${SUPABASE.url}/rest/v1/reports?select=*`,{headers:sbHeaders()}); if(!r.ok) throw new Error('sb'); return r.json(); }
+async function sbInsert(rep){ const r=await fetch(`${SUPABASE.url}/rest/v1/reports`,{method:'POST',headers:{...sbHeaders(),'Prefer':'return=representation'},body:JSON.stringify(rep)}); if(!r.ok) throw new Error('sb'); return (await r.json())[0]; }
+async function sbVotes(id,confirms,denies){ await fetch(`${SUPABASE.url}/rest/v1/reports?id=eq.${encodeURIComponent(id)}`,{method:'PATCH',headers:{...sbHeaders(),'Prefer':'return=minimal'},body:JSON.stringify({confirms,denies})}); }
+function normRow(r){ return { id:String(r.id), key:r.key, city:r.city, street:r.street, num:String(r.num??''), rooms:+r.rooms||0, sqm:+r.sqm||0,
+  paid:+r.paid||0, tags:Array.isArray(r.tags)?r.tags:(r.tags?JSON.parse(r.tags):[]), cmt:r.cmt||'',
+  confirms:+r.confirms||0, denies:+r.denies||0, voters:r.voters&&typeof r.voters==='object'?r.voters:{}, demo:!!r.demo, t:+r.t||Date.now() }; }
+
 /* ---- seed demo reports (clearly flagged) for one demo address ---- */
 const DEMO_KEY = addrKey("תל אביב–יפו","דיזנגוף","99");
 function seedReports(){
@@ -661,7 +692,8 @@ function seedReports(){
   saveReports(r);
   return r;
 }
-let REPORTS = seedReports();
+let REPORTS = REMOTE ? [] : seedReports();
+async function initRemote(){ if(!REMOTE) return; try{ REPORTS = (await sbAll()).map(normRow); }catch(e){ REPORTS = seedReports(); } }
 
 /* ---- benchmark: seed proxy + verified community paid-rent ---- */
 function benchmark(city,rooms,sqm){
@@ -776,7 +808,7 @@ function runCheck(){
   lastScript=buildScript(a.city,rooms,asking,fair,delta,cls,comm.verifiedPaid);
   document.getElementById('resScript').textContent=lastScript;
   document.getElementById('resSource').innerHTML =
-    `בסיס: נתוני <b>seed</b> (₪/מ״ר לפי עיר)${comm.used?` · משולב עם <b>${comm.used} דיווחי קהילה מאומתים</b>`:''}. בגרסה מלאה ישולב פיד הלמ״ס לפי עיר × חדרים. הערכת מיקוח — לא שמאות מוסמכת.`;
+    `בסיס: <b>ערכי בסיס להמחשה</b> (₪/מ״ר לפי עיר)${comm.used?` · משולב עם <b>${comm.used} דיווחי קהילה מאומתים</b>`:''}. בגרסה מלאה ישולב פיד הלמ״ס לפי עיר × חדרים. הערכת מיקוח — לא שמאות מוסמכת.`;
 
   document.getElementById('result').classList.add('show');
   renderCommunity(a, propReports);
@@ -786,10 +818,38 @@ document.getElementById('checkForm').addEventListener('submit',e=>{e.preventDefa
 
 /* ---- community render ---- */
 function timeago(t){ const d=(Date.now()-t)/86400000; if(d<1)return'היום'; if(d<2)return'אתמול'; return `לפני ${Math.round(d)} ימים`; }
+
+/* ---- free OSM map: geocode the exact address (Nominatim) + drop a pin ---- */
+let _map=null,_marker=null,_circle=null; const _geo={};
+async function showMap(a){
+  const wrap=document.getElementById('mapWrap');
+  if(typeof L==='undefined' || !(a.city&&a.street&&a.num)){ if(wrap) wrap.style.display='none'; return; }
+  const q=`${a.street} ${a.num}, ${a.city}, ישראל`;
+  let loc=_geo[q];
+  if(loc===undefined){
+    try{
+      const res=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=he&q=${encodeURIComponent(q)}`,{headers:{'Accept':'application/json'}});
+      const j=await res.json(); loc=_geo[q]=(j&&j[0])?{lat:+j[0].lat,lon:+j[0].lon}:null;
+    }catch(e){ loc=_geo[q]=null; }
+  }
+  if(!loc){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  const vio=(getComputedStyle(document.body).getPropertyValue('--brand-500')||'#6550ff').trim();
+  if(!_map){
+    _map=L.map('map',{scrollWheelZoom:false}).setView([loc.lat,loc.lon],16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(_map);
+  } else { _map.setView([loc.lat,loc.lon],16); }
+  if(_marker) _marker.remove(); if(_circle) _circle.remove();
+  _marker=L.marker([loc.lat,loc.lon]).addTo(_map).bindPopup(`📍 ${a.street} ${a.num}, ${a.city}`);
+  _circle=L.circle([loc.lat,loc.lon],{radius:140,color:vio,fillColor:vio,fillOpacity:.12,weight:1.5}).addTo(_map);
+  setTimeout(()=>_map.invalidateSize(),60);
+}
+
 function renderCommunity(a, propReports){
   const sec=document.getElementById('community');
   sec.style.display='block';
   const hasAddr=a.street&&a.num;
+  showMap(a);
   document.getElementById('intelAddr').textContent = hasAddr
     ? `📍 ${addrLabel(a.city,a.street,a.num,a.hood)}`
     : `📍 ${a.city} — הוסיפו רחוב ומספר בית לקבלת מודיעין ברמת הנכס`;
@@ -850,24 +910,27 @@ function vote(id,dir){
   }
   r.confirms=Math.max(0,r.confirms); r.denies=Math.max(0,r.denies);
   saveReports(REPORTS);
+  if(REMOTE) sbVotes(r.id,r.confirms,r.denies).catch(()=>{});
   toast(dir==='up'?'אישרת את הדיווח ✓':'הפרכת את הדיווח');
   runCheck(); // recompute verdict + re-render with updated counts
 }
-document.getElementById('addReportBtn').addEventListener('click',()=>{
+document.getElementById('addReportBtn').addEventListener('click',async()=>{
   const a=addrFields();
   if(!a.city||!a.street||!a.num){ toast('כדי לדווח על נכס יש להזין עיר, רחוב ומספר בית'); return; }
   const paid=parseFloat(document.getElementById('rPaid').value)||0;
   const tags=[...document.querySelectorAll('#tagPick button[aria-pressed=true]')].map(b=>b.dataset.key);
   const cmt=document.getElementById('rCmt').value.trim();
   if(!paid && !tags.length && !cmt){ toast('הוסיפו לפחות סכום, תיוג או הערה'); return; }
-  REPORTS.push({id:'r'+Date.now().toString(36),key:addrKey(a.city,a.street,a.num),city:a.city,street:a.street,num:a.num,
+  const rep={id:'r'+Date.now().toString(36),key:addrKey(a.city,a.street,a.num),city:a.city,street:a.street,num:a.num,
     rooms:parseFloat(document.getElementById('rooms').value)||0,sqm:parseFloat(document.getElementById('sqm').value)||0,
-    paid,tags,cmt,confirms:0,denies:0,voters:{},t:Date.now()});
+    paid,tags,cmt,confirms:0,denies:0,voters:{},t:Date.now()};
+  REPORTS.push(rep);
   saveReports(REPORTS);
   document.getElementById('rPaid').value=''; document.getElementById('rCmt').value='';
   document.querySelectorAll('#tagPick button').forEach(b=>b.setAttribute('aria-pressed','false'));
   toast('הדיווח שלך פורסם — תודה שאתה מחזק את השוכרים 🤝');
   runCheck();
+  if(REMOTE){ try{ const {id,...row}=rep; rep.id=normRow(await sbInsert(row)).id; }catch(e){ toast('נשמר במכשיר — בעיית רשת לשמירה משותפת'); } }
 });
 
 /* ---- demo button ---- */
@@ -890,6 +953,9 @@ function setMode(m){ document.documentElement.dataset.mode=m; modeBtn.textConten
 modeBtn.addEventListener('click',()=>setMode(document.documentElement.dataset.mode==='dark'?'light':'dark'));
 setMode((()=>{try{return localStorage.getItem('fairent_mode')}catch(e){return null}})() || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
 let tT; function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(tT); tT=setTimeout(()=>t.classList.remove('show'),2500); }
+
+/* load the shared report pool from the free Supabase tier when configured */
+initRemote();
 </script>
 </body>
 </html>
