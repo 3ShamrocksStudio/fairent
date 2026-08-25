@@ -957,5 +957,8 @@ let tT; function toast(m){ const t=document.getElementById('toast'); t.textConte
 /* load the shared report pool from the free Supabase tier when configured */
 initRemote();
 </script>
+<script>
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/fairent/sw.js').catch(()=>{});
+</script>
 </body>
 </html>
