@@ -1,4 +1,4 @@
-const CACHE = 'fairent-v1';
+const CACHE = 'fairent-v2';
 const ASSETS = ['/fairent/', '/fairent/index.html', '/fairent/manifest.json'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS).catch(()=>{})));
