@@ -466,7 +466,7 @@ footer .legal b { color:var(--text-secondary); }
     <p class="lead">הזינו את הכתובת המדויקת ואת שכר הדירה המבוקש. תוך שניות תדעו אם הוא הוגן, תראו מודיעין קהילתי מאומת על הנכס עצמו, ותקבלו תסריט מיקוח שמוריד מחירים.</p>
     <div class="trustline">
       <span>🔒 אנונימי לגמרי</span>
-      <span>📊 הערכת מחיר לפי עיר וגודל</span>
+      <span>📊 מבוסס נתוני שכר דירה אמיתיים (למ״ס)</span>
       <span>🤝 מאומת בידי הקהילה</span>
     </div>
   </div>
@@ -604,7 +604,7 @@ footer .legal b { color:var(--text-secondary); }
       <div class="body">
         <p>לא מבקשים מכם לסמוך עלינו בעיניים עצומות. הנה בדיוק מה שקורה בגרסת ההדגמה:</p>
         <ul>
-          <li><b>בסיס נתונים</b> — ערכי שוק (₪ למ״ר לפי עיר) בסדרי גודל ציבוריים (הלמ״ס). ערכי בסיס להמחשה; בגרסה מלאה ייכנס פיד רשמי של הלמ״ס לפי עיר × מספר חדרים.</li>
+          <li><b>בסיס נתונים</b> — שכר דירה ממוצע <b>בפועל</b> מ<a href="https://www.cbs.gov.il/he/publications/Madad/DocLib/2025/price09a/a4_9_e.pdf" target="_blank" rel="noopener">הלשכה המרכזית לסטטיסטיקה (לוח 4.9)</a>, לפי <b>עיר × מספר חדרים</b>, רבעון 2 2025 — נתונים אמיתיים מסקר שכר הדירה, לא מחירי בקשה. לערים ללא פירוט עירוני נעשה שימוש בממוצע <b>המחוז</b> (ומסומן ככזה).</li>
           <li><b>חישוב בסיס</b> — מחיר הוגן ≈ <code>שטח × ₪ למ״ר</code>; הסטייה = <code>(מבוקש − הוגן) ÷ הוגן</code>.</li>
           <li><b>מודיעין קהילתי</b> — דיווחי שוכרים (שכר ששולם בפועל + תיוגי חוויה) משוקללים לפי <b>מאזן האישורים וההפרכות</b>: דיווח מאומת מקבל משקל, דיווח מופרך מאבד אותו.</li>
           <li><b>איך זה מזיז את הציון</b> — מטרדים מאומתים (רעש, תחזוקה לקויה, עלויות נסתרות, מחיר מנופח) מורידים את השווי ההוגן של הנכס לשוכר; חוויות חיוביות מאומתות מעלות אותו מעט. כך הפער מול המבוקש משתנה.</li>
@@ -633,20 +633,73 @@ footer .legal b { color:var(--text-secondary); }
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /* ============================================================================
-   Fairent engine — CBS-proxy benchmark + community-verified intel.
-   ⚠️ SEED DATA: ₪/m²/month are realistic order-of-magnitude proxies for a PoC,
-   to be replaced by an official CBS city×room-band feed (see DATA-STRATEGY.md).
+   Fairent engine — REAL CBS actual-rent benchmark (Table 4.9) + community intel.
+   Base ₪ figures are paid-rent from the CBS Rent Survey, NOT asking/proxies.
+   Source: CBS Table 4.9, Q2 2025 (see DATA-STRATEGY.md).
    No fabricated reviews: demo reports are explicitly flagged "לדוגמה".
    ============================================================================ */
 const NIS = n => '₪' + Math.round(n).toLocaleString('he-IL');
-const CITY = {
-  "תל אביב–יפו":95,"רמת גן":76,"גבעתיים":80,"הרצליה":82,"רמת השרון":84,
-  "ירושלים":62,"חיפה":47,"באר שבע":37,"נתניה":57,"ראשון לציון":62,
-  "פתח תקווה":60,"חולון":58,"בת ים":58,"אשדוד":48,"אשקלון":42,
-  "רחובות":58,"כפר סבא":63,"רעננה":69,"מודיעין":58,"נהריה":36,
-  "אילת":52,"בית שמש":46,"באר יעקב":52,"יבנה":50,"אחר / עיר אחרת":50
+/* ===========================================================================
+   CBS actual-rent data — Central Bureau of Statistics, Table 4.9
+   "Average Monthly Prices of Rent (NIS), by district, big cities & size group".
+   ACTUAL paid rent (CBS Rent Survey), period: Q2 2025 (Apr–Jun). ₪/month.
+   Source: https://www.cbs.gov.il/he/publications/Madad/DocLib/2025/price09a/a4_9_e.pdf
+   Per row: [1–2 rooms, 2.5–3, 3.5–4, 4.5–6, overall]. null = CBS-suppressed cell.
+   =========================================================================== */
+const CBS_PERIOD = "רבעון 2 2025 (אפר׳–יוני)";
+const CBS_SRC    = "הלשכה המרכזית לסטטיסטיקה — לוח 4.9, שכר דירה ממוצע בפועל";
+const CBS_URL    = "https://www.cbs.gov.il/he/publications/Madad/DocLib/2025/price09a/a4_9_e.pdf";
+const CBS_CITY = {
+  "תל אביב–יפו":[5363.9,6976.3,8671.3,10953.0,7154.8],
+  "ירושלים":    [3776.8,4687.1,5941.1,7574.5,5135.2],
+  "חיפה":       [2427.9,3048.8,3902.0,5301.4,3278.9],
+  "באר שבע":    [2262.2,2714.6,3326.0,4575.2,2993.1],
+  "רמת גן":     [4121.1,5304.8,6558.8,8172.7,5669.2],
+  "הרצליה":     [4586.3,5331.9,6856.6,8890.5,6414.9],
+  "ראשון לציון":[3586.6,4473.4,5397.1,7057.0,5002.4],
+  "פתח תקווה":  [3360.0,4071.0,5116.7,6815.0,4872.8],
+  "נתניה":      [3097.2,3950.7,5119.8,6222.7,4547.3],
+  "חולון":      [3532.9,4183.2,5314.8,6838.3,4778.2],
+  "בת ים":      [3494.3,4017.2,5230.7,6750.0,4239.4],
+  "רחובות":     [3108.3,3964.2,4880.0,6203.7,4639.1],
+  "אשדוד":      [3036.7,3830.3,4779.5,6025.0,4282.6],
+  "אשקלון":     [2627.8,3185.7,3959.7,4675.4,3540.2],
+  "חדרה":       [2647.9,3299.5,4211.8,5024.8,3819.4],
+  "בני ברק":    [3205.5,4032.1,5023.2,6129.7,4286.3],
+  "כפר סבא":    [null,  4590.8,5850.3,7277.2,5763.4],
+  "בית שמש":    [null,  3888.7,4505.3,5972.2,4353.3]
+};
+const CBS_DISTRICT = {
+  "מחוז ירושלים":[3736.5,4579.9,5776.4,7259.5,5056.4],
+  "מחוז הצפון":  [2260.8,2667.1,3389.3,4660.7,3119.7],
+  "מחוז חיפה":   [2442.6,3089.3,3927.8,5452.2,3544.6],
+  "מחוז המרכז":  [3352.9,4231.2,5398.6,7108.5,5162.5],
+  "מחוז תל אביב":[4717.8,5752.0,7016.2,9121.2,6154.0],
+  "מחוז הדרום":  [2515.9,3111.4,3876.9,4896.4,3499.5]
+};
+const CBS_NAT = [3724.8,4349.5,5320.3,6860.9,4878.7]; // national, Q2 2025
+// towns CBS does not break out individually → fall back to their district
+const CITY_TO_DISTRICT = {
+  "גבעתיים":"מחוז תל אביב","רמת השרון":"מחוז תל אביב",
+  "רעננה":"מחוז המרכז","מודיעין":"מחוז המרכז","באר יעקב":"מחוז המרכז","יבנה":"מחוז המרכז",
+  "כפר סבא":"מחוז המרכז","בית שמש":"מחוז ירושלים",       // used only for CBS-suppressed bands
+  "נהריה":"מחוז הצפון","אילת":"מחוז הדרום"
 };
 const ROOM_SQM = {1:34,1.5:42,2:50,2.5:58,3:68,3.5:78,4:90,4.5:102,5:115,5.5:130};
+const BAND_LABEL = ["1–2 חד׳","2.5–3 חד׳","3.5–4 חד׳","4.5+ חד׳"];
+function roomBand(r){ return r<=2 ? 0 : r<=3 ? 1 : r<=4 ? 2 : 3; } // 1–2 / 2.5–3 / 3.5–4 / 4.5+
+function cbsLookup(city, band){
+  const c = CBS_CITY[city];
+  if (c && c[band]!=null) return {v:c[band], scope:city, level:"עיר"};
+  const dk = CITY_TO_DISTRICT[city];
+  if (dk && CBS_DISTRICT[dk]) return {v:CBS_DISTRICT[dk][band], scope:dk, level:"מחוז"};
+  return {v:CBS_NAT[band], scope:"ממוצע ארצי", level:"ארצי"};
+}
+const CITY_NAMES = [
+  "תל אביב–יפו","ירושלים","חיפה","באר שבע","ראשון לציון","פתח תקווה","נתניה",
+  "אשדוד","רמת גן","הרצליה","חולון","בת ים","רחובות","אשקלון","חדרה","בני ברק","כפר סבא","בית שמש",
+  "גבעתיים","רמת השרון","רעננה","מודיעין","באר יעקב","יבנה","נהריה","אילת","אחר / עיר אחרת"
+];
 const HOODS = ["מרכז העיר","שכונה ותיקה","אזור מתחדש","שכונה שקטה","קרוב לתחבורה"];
 const TAGS = [
   {key:'noise',label:'רעש / שכנים רועשים',pol:-1,w:.05},
@@ -709,11 +762,19 @@ function seedReports(){
 let REPORTS = REMOTE ? [] : seedReports();
 async function initRemote(){ if(!REMOTE) return; try{ REPORTS = (await sbAll()).map(normRow); }catch(e){ REPORTS = seedReports(); } }
 
-/* ---- benchmark: seed proxy + verified community paid-rent ---- */
+/* ---- benchmark: CBS actual rent (city × room-band), size-tuned ---- */
 function benchmark(city,rooms,sqm){
-  const size = sqm&&sqm>=10 ? sqm : (ROOM_SQM[rooms]||68);
-  const ppm = CITY[city] ?? 50;
-  return { fair: ppm*size, ppm, size };
+  const band = roomBand(rooms);
+  const look = cbsLookup(city, band);          // {v, scope, level}
+  let mid = look.v;                             // CBS average ACTUAL rent, city × band
+  const typ = ROOM_SQM[rooms] || 68;
+  const size = sqm && sqm>=10 ? sqm : typ;
+  if (sqm && sqm>=10){                          // soft, bounded size fine-tune within the band
+    const f = Math.max(0.85, Math.min(1.15, sqm/typ));
+    mid = mid * (0.65 + 0.35*f);
+  }
+  return { fair:mid, ppm:mid/size, size, band,
+           scope:look.scope, level:look.level, fallback: look.level!=="עיר" };
 }
 /* report credibility from confirm/deny: 0..1.4 */
 function credibility(r){
@@ -759,7 +820,7 @@ function buildScript(city,rooms,asking,fair,delta,cls,verifiedPaid){
 }
 
 /* ---- populate selects ---- */
-Object.keys(CITY).forEach(c=>{ const o=document.createElement('option'); o.value=o.textContent=c; document.getElementById('city').appendChild(o); });
+CITY_NAMES.forEach(c=>{ const o=document.createElement('option'); o.value=o.textContent=c; document.getElementById('city').appendChild(o); });
 /* tag picker */
 const tagPick=document.getElementById('tagPick');
 TAGS.forEach(t=>{ const b=document.createElement('button'); b.type='button'; b.textContent=t.label; b.dataset.key=t.key;
@@ -786,7 +847,7 @@ function runCheck(){
   const propReports = (a.street&&a.num)? REPORTS.filter(r=>r.key===curKey) : [];
   const comm = communityAdjust(propReports, base.fair, asking);
   const fair = comm.fair;
-  const delta=(asking-fair)/fair, cls=classify(delta), lo=fair*0.92, hi=fair*1.12;
+  const delta=(asking-fair)/fair, cls=classify(delta), lo=fair*0.90, hi=fair*1.07;
 
   document.getElementById('resProfile').textContent =
     `דירת ${rooms} חדרים${sqm?` · ${sqm} מ״ר`:''} · ${addrLabel(a.city,a.street,a.num,a.hood)||a.city}`;
@@ -821,8 +882,9 @@ function runCheck(){
   document.querySelectorAll('#resConf i').forEach((b,i)=> b.className=i<conf?'on':'');
   lastScript=buildScript(a.city,rooms,asking,fair,delta,cls,comm.verifiedPaid);
   document.getElementById('resScript').textContent=lastScript;
+  const scopeTxt = base.level==="עיר" ? `${base.scope}` : base.level==="מחוז" ? `${base.scope} (אין פירוט עירוני ללמ״ס)` : `ממוצע ארצי (עיר לא בטבלת הלמ״ס)`;
   document.getElementById('resSource').innerHTML =
-    `בסיס: <b>ערכי בסיס להמחשה</b> (₪/מ״ר לפי עיר)${comm.used?` · משולב עם <b>${comm.used} דיווחי קהילה מאומתים</b>`:''}. בגרסה מלאה ישולב פיד הלמ״ס לפי עיר × חדרים. הערכת מיקוח — לא שמאות מוסמכת.`;
+    `בסיס: שכר דירה ממוצע <b>בפועל</b> מ<a href="${CBS_URL}" target="_blank" rel="noopener">הלמ״ס — לוח 4.9</a> · <b>${BAND_LABEL[base.band]}</b> · ${scopeTxt} · ${CBS_PERIOD}${comm.used?` · משולב עם <b>${comm.used} דיווחי קהילה מאומתים</b>`:''}. נתוני סקר שכר הדירה (לא מחירי בקשה). הערכת מיקוח — לא שמאות מוסמכת.`;
 
   document.getElementById('result').classList.add('show');
   renderCommunity(a, propReports);
