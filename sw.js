@@ -1,4 +1,4 @@
-const CACHE = 'fairent-v3-cbs';
+const CACHE = 'fairent-v4-brand-2026-11-02';
 const ASSETS = ['/fairent/', '/fairent/index.html', '/fairent/manifest.json'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS).catch(()=>{})));
