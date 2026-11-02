@@ -11,10 +11,10 @@ A 3Shamrocks Studio product. © 2026 3Shamrocks Studio. All rights reserved.
 
 ---
 
-## Status: PoC (local preview only — not published)
+## Status: staging (2 Nov 2026)
 
-This is a working proof-of-concept of the core flow, built to the 3S quality bar. It is **not**
-yet public — Dave reviews first.
+Staged at https://3shamrocksstudio.github.io/fairent/ (GitHub Pages from `main`, `noindex`).
+**Not launched** — Dave reviews first. Audit + next steps: `FAIRENT-AUDIT-2026-11-02.md`.
 
 ## Run it locally
 ```bash
@@ -47,10 +47,10 @@ brand world — deep teal-blue (trust/justice) + fair-green (the home) + gold (t
 generates the whole UI. Heebo/Assistant type, WCAG-AA contrast, RTL throughout, dark mode.
 
 ## Honest limitations (see DATA-STRATEGY.md §8)
-- The benchmark currently uses **clearly-labeled seed `₪/m²` proxy values**, to be replaced by
-  the **CBS city × room-band actual-rent feed** — the #1 next data task.
-- Crowdsourced contributions are stored in **localStorage** for the PoC; production needs a
-  k-anonymized backend (Amendment-13 compliant).
+- Benchmark = **real CBS Table 4.9 actual rent, Q2 2025** (latest level table we could verify)
+  × the **CBS Sept-2026 new-tenant change (+5.3%)**. Both sources are linked in the UI.
+- Renter reports are **switched off** until a shared, k-anonymised backend exists. The old
+  on-device sample reports were removed (and are wiped from browsers that still hold them).
 - This is a **negotiation aid, not a certified appraisal** — and v1 is honestly a *fairness band
   with provenance*, not a per-address oracle. Israel has no legal address-level actual-rent source.
 

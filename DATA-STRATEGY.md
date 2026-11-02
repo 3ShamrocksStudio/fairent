@@ -193,6 +193,9 @@ heuristic over seed proxy data** so the flow is real and demonstrable today:
 - [x] **Quantify the BoI/CBS new-tenant uplift factor.** → CBS CPI release **017/2026** (Dec-2025
   data): lease **renewals +3.0% y/y** vs **new tenants +4.6% y/y** → **~1.6pp** new-lease premium.
   Surfaced as an honest note in the result + transparency panel (not silently inflating the figure).
+- [x] **2 Nov 2026:** new-lease estimate now applied openly: fair = CBS level × 1.053, from the CBS
+  Sept-2026 CPI (new tenants +5.3%, renewals +2.4%; https://www.nadlancenter.co.il/article/15581).
+  Shown as an estimate next to the raw CBS number. Sample reports and modelled "comps" removed.
 - [ ] **Refresh cadence:** Q3 2025 / Q1 2026 figures are circulating (secondary-quoted, ~+3.5% y/y
   national) but no newer *primary level PDF* was confirmed. Re-pull `a4_9_*.pdf` each quarter.
 - [ ] Decide the asking-price posture: user-pasted comps (safe) vs. any permissible ingest.

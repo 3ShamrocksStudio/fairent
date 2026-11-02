@@ -52,6 +52,23 @@ above appears verbatim.
 - **Body:** Assistant, falling back to Heebo
 - Hebrew‑first, RTL (`dir="rtl"`, `lang="he"`), with Latin chrome pinned LTR.
 
+## Identity v2 (2 Nov 2026)
+
+- **Mood:** "power back to renters". Night-city hero in Ink → Indigo → Violet, with Signal
+  Green as the one "fair" colour (CTAs, the fair end of the dial, positive numbers).
+- **Logo use:** full lockup on light surfaces as-is; on dark surfaces always on a white chip
+  (the indigo "RENT" must never sit on indigo). Never recoloured.
+- **Type:** Heebo 900 for headlines and every number (tabular figures), Assistant for body.
+  Hebrew numbers and ranges are bidi-isolated so `+5.3%` and `2.5–3` read correctly in RTL.
+- **Icon set:** `Brand/fairent-icons.svg` — 21 icons on a 24px grid, 2px round strokes in
+  `currentColor`, with one Signal Green accent stroke per icon (class `g`). Inlined as a sprite
+  in `index.html`. No emoji in the UI.
+- **Imagery:** an inline SVG skyline (brand ramps only, lit windows in Signal Green/violet) with
+  the real Fairent icon on the rooftop sign, plus floating cards that carry **real CBS numbers**.
+  No stock photos, no invented figures.
+- **Psychology:** lead with the renter's money (yearly overpay in ₪), show the source next to
+  every number, and end with an action (copy / WhatsApp the negotiation message).
+
 ## Design‑system compliance
 
 Fairent inherits 3S Design System v3.0 verbatim (`tokens.css` + `components.css`,
