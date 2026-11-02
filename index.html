@@ -1043,7 +1043,7 @@ function drawCity(c){
   chips.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.textContent===c?'true':'false'));
   const row=CBS_CITY[c]; $('chartCity').textContent=c;
   $('chartTotal').textContent=`ממוצע כל הדירות בעיר: ${NIS(row[4])} לחודש`;
-  const max=11500;
+  const max=Math.max(...row.slice(0,4).filter(v=>v!=null),...CBS_NAT.slice(0,4))*1.12; // scale per city, national line always in view
   $('bars').innerHTML=row.slice(0,4).map((v,i)=>{ const nat=CBS_NAT[i];
     const hh=v==null?0:(v/max*100).toFixed(1); return `<div class="col"><div class="val num" data-h="${hh}">${v==null?'אין נתון':NIS(v)}</div><div class="b" data-h="${hh}"></div><div class="nat" style="bottom:${(nat/max*100).toFixed(1)}%" title="ממוצע ארצי ${NIS(nat)}"></div></div>`; }).join('');
   $('barsX').innerHTML=BAND_LABEL.map(l=>`<div class="x" style="text-align:center;font-size:.82rem;font-weight:800;color:var(--text-secondary)">${l}</div>`).join('');
